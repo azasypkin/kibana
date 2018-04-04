@@ -176,7 +176,8 @@ export function HeaderPageProvider({ getService, getPageObjects }) {
     // check if the auto refresh state is active and to pause it
     async pauseAutoRefresh() {
       let result = false;
-      if (await this.getAutoRefreshState() === 'active') {
+      if (await testSubjects.exists('globalTimepickerAutoRefreshButton')
+          && await this.getAutoRefreshState() === 'active') {
         await testSubjects.click('globalTimepickerAutoRefreshButton');
         result = true;
       }
