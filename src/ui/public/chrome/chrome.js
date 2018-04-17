@@ -54,7 +54,7 @@ const waitForBootstrap = new Promise(resolve => {
   chrome.bootstrap = function () {
     chrome.setupAngular();
     angular.bootstrap(document.body, ['kibana']);
-    resolve();
+    chrome.i18n.init().then(resolve, resolve);
   };
 });
 

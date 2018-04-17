@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 const asyncReadFile = Promise.promisify(readFile);
 
-const TRANSLATION_FILE_EXTENSION = '.json';
+const TRANSLATION_FILE_EXTENSION = '.ftl';
 
 function getLocaleFromFileName(fullFileName) {
   if (_.isEmpty(fullFileName)) throw new Error('Filename empty');
@@ -122,24 +122,18 @@ export class I18n {
     return locale;
   }
 
-  _getTranslationsForLocale(locale) {
+  async _getTranslationsForLocale(locale) {
     if (!this._registeredTranslations.hasOwnProperty(locale)) {
-      return Promise.resolve({});
+      return '';
     }
 
     const translationFiles = this._registeredTranslations[locale];
-    const translations = _.map(translationFiles, (filename) => {
-      return asyncReadFile(filename, 'utf8')
-        .then(fileContents => JSON.parse(fileContents))
-        .catch(SyntaxError, function () {
-          throw new Error('Invalid json in ' + filename);
-        })
-        .catch(function () {
-          throw new Error('Cannot read file ' + filename);
-        });
-    });
 
-    return Promise.all(translations)
-      .then(translations => _.assign({}, ...translations));
+    let translations = '';
+    for (const translationFile of translationFiles) {
+      translations += await asyncReadFile(translationFile, 'utf8');
+    }
+
+    return translations;
   }
 }

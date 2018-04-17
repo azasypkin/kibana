@@ -33,6 +33,7 @@ import { SavedObjectsClientProvider } from 'ui/saved_objects';
 import { recentlyAccessed } from 'ui/persisted_log';
 import { getDocLink } from 'ui/documentation_links';
 import '../components/fetch_error';
+import chrome from 'ui/chrome';
 
 const app = uiModules.get('apps/discover', [
   'kibana/notify',
@@ -144,6 +145,10 @@ function discoverController(
 
   $scope.intervalEnabled = function (interval) {
     return interval.val !== 'custom';
+  };
+
+  $scope.labels = {
+    timeTooltip: chrome.i18n.t('time-range-tooltip')
   };
 
   $scope.topNavMenu = [{

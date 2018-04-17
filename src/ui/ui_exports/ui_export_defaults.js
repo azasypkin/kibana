@@ -17,7 +17,7 @@ export const UI_EXPORT_DEFAULTS = {
   },
 
   translationPaths: [
-    resolve(ROOT, 'src/ui/ui_i18n/translations/en.json'),
+    resolve(ROOT, 'src/ui/ui_i18n/translations/en.ftl'),
   ],
 
   appExtensions: {

@@ -18,7 +18,7 @@
             ></span>&nbsp;
           </span>
           <span data-test-subj="discoverQueryHits" class="kuiLocalBreadcrumb__emphasis">{{(hits || 0) | number:0}}</span>
-          <ng-pluralize count="hits" when="{'1':'hit', 'other':'hits'}"></ng-pluralize>
+          <span data-l10n-id="discover-hits" data-l10n-args="{{ { count: hits } }}">DEFAULT</span>
         </h1>
       </div>
 
@@ -104,7 +104,7 @@
             <section aria-label="Histogram of found documents" class="discover-timechart" ng-if="opts.timefield">
               <header>
                 <center class="small">
-                  <span tooltip="To change the time, click the clock icon in the navigation bar">{{timeRange.from | moment}} - {{timeRange.to | moment}}</span>
+                  <span tooltip="{{labels.timeTooltip}}">{{timeRange.from | moment}} - {{timeRange.to | moment}}</span>
 
                   &mdash;
 

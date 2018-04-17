@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import chrome from 'ui/chrome';
+import { Localized } from 'fluent-react/compat';
 
 import {
   KuiButton,
@@ -35,13 +36,14 @@ export class ExitFullScreenButton extends PureComponent {
       >
         <KuiButton
           type="hollow"
+          l10nId="exit-full-screen-mode"
           aria-label="Exit full screen mode"
           className="exitFullScreenMode"
           onClick={this.props.onExitFullScreenMode}
         >
           <span className="exitFullScreenModeLogo" data-test-subj="exitFullScreenModeLogo"/>
           <span className="exitFullScreenModeText" data-test-subj="exitFullScreenModeText">
-            Exit full screen
+            <Localized id="exit-full-screen"><span>Exit full screen</span></Localized>
             <span className="kuiIcon fa fa-angle-left"/>
           </span>
         </KuiButton>

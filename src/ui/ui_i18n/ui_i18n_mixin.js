@@ -29,12 +29,7 @@ export function uiI18nMixin(kbnServer, server, config) {
 
     const requestedTranslations = await i18n.getTranslations(...tags);
     const defaultTranslations = await i18n.getTranslationsForDefaultLocale();
-
-    return defaults(
-      {},
-      requestedTranslations,
-      defaultTranslations
-    );
+    return requestedTranslations;
   });
 
   /**

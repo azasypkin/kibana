@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { KuiButtonIcon } from './button_icon/button_icon';
+import { Localized } from 'fluent-react/compat';
 
 const accessibleIconButton = (props, propName, componentName) => {
   if (props.children) {
@@ -88,25 +89,29 @@ const KuiButton = ({
   buttonType,
   icon,
   children,
+  l10nId,
   ...rest
 }) => {
   return (
-    <button
-      className={getClassName({
-        className,
-        buttonType,
-        hasIcon: icon || isLoading,
-      })}
-      {...rest}
-    >
-      <ContentWithIcon
-        icon={icon}
-        iconPosition={iconPosition}
-        isLoading={isLoading}
+    <Localized id={l10nId} attrs={{ title: true, 'aria-label': true }}>
+      <button
+        className={getClassName({
+          className,
+          buttonType,
+          hasIcon: icon || isLoading,
+        })}
+        {...rest}
       >
-        {children}
-      </ContentWithIcon>
-    </button>
+        <ContentWithIcon
+          icon={icon}
+          iconPosition={iconPosition}
+          isLoading={isLoading}
+        >
+          {children}
+        </ContentWithIcon>
+      </button>
+    </Localized>
+
   );
 };
 

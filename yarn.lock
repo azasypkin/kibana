@@ -4520,6 +4520,23 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
+fluent-dom@../../../fluent.js/fluent-dom/:
+  version "0.2.0"
+
+fluent-intl-polyfill@../../../fluent.js/fluent-intl-polyfill/:
+  version "0.1.0"
+  dependencies:
+    intl-pluralrules projectfluent/IntlPluralRules#module
+
+fluent-react@../../../fluent.js/fluent-react/:
+  version "0.6.1"
+  dependencies:
+    fluent "^0.4.0 || ^0.6.0"
+    prop-types "^15.6.0"
+
+fluent@../../../fluent.js/fluent, "fluent@^0.4.0 || ^0.6.0":
+  version "0.6.4"
+
 flush-write-stream@^1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/flush-write-stream/-/flush-write-stream-1.0.3.tgz#c5d586ef38af6097650b49bc41b55fabb19f35bd"
@@ -5824,6 +5841,10 @@ insane@2.5.0:
 interpret@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.1.0.tgz#7ed1b1410c6a0e0f78cf95d3b8440c63f78b8614"
+
+intl-pluralrules@projectfluent/IntlPluralRules#module:
+  version "0.1.0"
+  resolved "https://codeload.github.com/projectfluent/IntlPluralRules/tar.gz/94cb0fa1c23ad943bc5aafef43cea132fa51d68b"
 
 invariant@^2.0.0, invariant@^2.2.0, invariant@^2.2.1, invariant@^2.2.2:
   version "2.2.4"
