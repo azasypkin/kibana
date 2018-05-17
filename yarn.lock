@@ -149,10 +149,6 @@
   version "0.0.0"
   uid ""
 
-"@kbn/platform@link:platform":
-  version "0.0.0"
-  uid ""
-
 "@kbn/plugin-generator@link:packages/kbn-plugin-generator":
   version "0.0.0"
   uid ""
@@ -184,6 +180,14 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
+"@types/boom@*":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@types/boom/-/boom-7.2.0.tgz#19c36cbb5811a7493f0f2e37f31d42b28df1abc1"
+
+"@types/catbox@*":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@types/catbox/-/catbox-10.0.0.tgz#1e01e5ad83e224f110cc59f6f57c56558f7eeb61"
+
 "@types/chance@0.7.34":
   version "0.7.34"
   resolved "https://registry.yarnpkg.com/@types/chance/-/chance-0.7.34.tgz#270ec0e23feafdee471b9d2f053f9a2ff922270e"
@@ -209,9 +213,36 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/getopts/-/getopts-2.0.0.tgz#8a603370cb367d3192bd8012ad39ab2320b5b476"
 
+"@types/hapi-latest@npm:@types/hapi", "@types/hapi@^17.0.12":
+  version "17.0.12"
+  resolved "https://registry.yarnpkg.com/@types/hapi/-/hapi-17.0.12.tgz#5751f4d8db4decb4eae6671a4efbeae671278ceb"
+  dependencies:
+    "@types/boom" "*"
+    "@types/catbox" "*"
+    "@types/iron" "*"
+    "@types/joi" "*"
+    "@types/mimos" "*"
+    "@types/node" "*"
+    "@types/podium" "*"
+    "@types/shot" "*"
+
+"@types/has-ansi@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/has-ansi/-/has-ansi-3.0.0.tgz#636403dc4e0b2649421c4158e5c404416f3f0330"
+
+"@types/iron@*":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@types/iron/-/iron-5.0.1.tgz#5420bbda8623c48ee51b9a78ebad05d7305b4b24"
+  dependencies:
+    "@types/node" "*"
+
 "@types/jest@^22.2.3":
   version "22.2.3"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-22.2.3.tgz#0157c0316dc3722c43a7b71de3fdf3acbccef10d"
+
+"@types/joi@*":
+  version "13.0.8"
+  resolved "https://registry.yarnpkg.com/@types/joi/-/joi-13.0.8.tgz#224d5da224036f0c15b35e6980ba9de63b8ea374"
 
 "@types/js-yaml@^3.11.1":
   version "3.11.1"
@@ -229,6 +260,16 @@
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-3.10.1.tgz#ef8c8c35649f07884e0fb7763b24baaf7e175c36"
 
+"@types/mime-db@*":
+  version "1.27.0"
+  resolved "https://registry.yarnpkg.com/@types/mime-db/-/mime-db-1.27.0.tgz#9bc014a1fd1fdf47649c1a54c6dd7966b8284792"
+
+"@types/mimos@*":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@types/mimos/-/mimos-3.0.1.tgz#59d96abe1c9e487e7463fe41e8d86d76b57a441a"
+  dependencies:
+    "@types/mime-db" "*"
+
 "@types/minimatch@^2.0.29":
   version "2.0.29"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-2.0.29.tgz#5002e14f75e2d71e564281df0431c8c1b4a2a36a"
@@ -241,9 +282,23 @@
   version "8.10.15"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.10.15.tgz#3ce3cdf6ee1846a9db0c0f52275c14bf0cd67f67"
 
+"@types/podium@*":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/podium/-/podium-1.0.0.tgz#bfaa2151be2b1d6109cc69f7faa9dac2cba3bb20"
+
+"@types/shot@*":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@types/shot/-/shot-3.4.0.tgz#459477c5187d3ebd303660ab099e7e9e0f3b656f"
+  dependencies:
+    "@types/node" "*"
+
 "@types/sinon@1.16.36":
   version "1.16.36"
   resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-1.16.36.tgz#74bb6ed7928597c1b3fb1b009005e94dc6eae357"
+
+"@types/strip-ansi@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/strip-ansi/-/strip-ansi-3.0.0.tgz#9b63d453a6b54aa849182207711a08be8eea48ae"
 
 "@types/superagent@*":
   version "3.5.8"
@@ -5706,6 +5761,28 @@ hapi-auth-cookie@6.1.1:
     hoek "3.x.x"
     joi "7.x.x"
 
+"hapi-latest@npm:hapi":
+  version "17.4.0"
+  resolved "https://registry.yarnpkg.com/hapi/-/hapi-17.4.0.tgz#c56c0ec3b8d678cc941bdb943bcbddc4107e838b"
+  dependencies:
+    accept "3.x.x"
+    ammo "3.x.x"
+    boom "7.x.x"
+    bounce "1.x.x"
+    call "5.x.x"
+    catbox "10.x.x"
+    catbox-memory "3.x.x"
+    heavy "6.x.x"
+    hoek "5.x.x"
+    joi "13.x.x"
+    mimos "4.x.x"
+    podium "3.x.x"
+    shot "4.x.x"
+    statehood "6.x.x"
+    subtext "6.x.x"
+    teamwork "3.x.x"
+    topo "3.x.x"
+
 hapi@14.2.0:
   version "14.2.0"
   resolved "https://registry.yarnpkg.com/hapi/-/hapi-14.2.0.tgz#e4fe2fc182598a0f81e87b41b6be0fbd31c75409"
@@ -5729,28 +5806,6 @@ hapi@14.2.0:
     statehood "4.x.x"
     subtext "4.x.x"
     topo "2.x.x"
-
-hapi@^17.4.0:
-  version "17.4.0"
-  resolved "https://registry.yarnpkg.com/hapi/-/hapi-17.4.0.tgz#c56c0ec3b8d678cc941bdb943bcbddc4107e838b"
-  dependencies:
-    accept "3.x.x"
-    ammo "3.x.x"
-    boom "7.x.x"
-    bounce "1.x.x"
-    call "5.x.x"
-    catbox "10.x.x"
-    catbox-memory "3.x.x"
-    heavy "6.x.x"
-    hoek "5.x.x"
-    joi "13.x.x"
-    mimos "4.x.x"
-    podium "3.x.x"
-    shot "4.x.x"
-    statehood "6.x.x"
-    subtext "6.x.x"
-    teamwork "3.x.x"
-    topo "3.x.x"
 
 har-schema@^1.0.5:
   version "1.0.5"
@@ -5785,6 +5840,12 @@ has-ansi@^2.0.0:
   resolved "https://registry.yarnpkg.com/has-ansi/-/has-ansi-2.0.0.tgz#34f5049ce1ecdf2b0649af3ef24e45ed35416d91"
   dependencies:
     ansi-regex "^2.0.0"
+
+has-ansi@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/has-ansi/-/has-ansi-3.0.0.tgz#36077ef1d15f333484aa7fa77a28606f1c655b37"
+  dependencies:
+    ansi-regex "^3.0.0"
 
 has-binary@0.1.7:
   version "0.1.7"
@@ -11042,12 +11103,6 @@ rxjs@^5.4.3:
   dependencies:
     symbol-observable "1.0.1"
 
-rxjs@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.1.0.tgz#833447de4e4f6427b9cec3e5eb9f56415cd28315"
-  dependencies:
-    tslib "^1.9.0"
-
 safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
@@ -11964,7 +12019,7 @@ symbol-observable@1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.0.4.tgz#29bf615d4aa7121bdd898b22d4b3f9bc4e2aa03d"
 
-symbol-observable@^1.0.1, symbol-observable@^1.0.3, symbol-observable@^1.2.0:
+symbol-observable@^1.0.1, symbol-observable@^1.0.3:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
 
