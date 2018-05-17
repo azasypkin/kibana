@@ -19,10 +19,12 @@ bower_components
 /packages/eslint-config-kibana
 /packages/eslint-plugin-kibana-custom
 /packages/kbn-pm/dist
+/packages/kbn-internal-native-observable
 /packages/kbn-plugin-generator/sao_template/template
 /packages/kbn-ui-framework/dist
 /packages/kbn-ui-framework/doc_site/build
 /packages/kbn-ui-framework/generator-kui/*/templates/
+/platform/target
 /x-pack/coverage
 /x-pack/build
 /x-pack/plugins/**/__tests__/fixtures/**
