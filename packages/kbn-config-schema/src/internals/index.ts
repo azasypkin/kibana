@@ -42,13 +42,13 @@ const anyCustomRule: Rules = {
   name: 'custom',
   params: {
     validator: Joi.func()
-      .maxArity(1)
+      .maxArity(2)
       .required(),
   },
   validate(params, value, state, options) {
     let validationResultMessage;
     try {
-      validationResultMessage = params.validator(value);
+      validationResultMessage = params.validator(value, options.context || {});
     } catch (e) {
       validationResultMessage = e.message || e;
     }

@@ -116,11 +116,7 @@ describe('#validate', () => {
 
     type.validate({ foo: {} });
 
-    expect(mockValidate).toHaveBeenCalledWith({
-      foo: {
-        bar: 'baz',
-      },
-    });
+    expect(mockValidate).toHaveBeenCalledWith({ foo: { bar: 'baz' } }, {});
   });
 });
 

@@ -291,18 +291,12 @@ describe('#validate', () => {
 
     type.validate({ key: 'number' });
 
-    expect(mockValidate).toHaveBeenCalledWith({
-      key: 'number',
-      value: 100,
-    });
+    expect(mockValidate).toHaveBeenCalledWith({ key: 'number', value: 100 }, {});
 
     mockValidate.mockClear();
 
     type.validate({ key: 'not-number' });
 
-    expect(mockValidate).toHaveBeenCalledWith({
-      key: 'not-number',
-      value: 'some-string',
-    });
+    expect(mockValidate).toHaveBeenCalledWith({ key: 'not-number', value: 'some-string' }, {});
   });
 });

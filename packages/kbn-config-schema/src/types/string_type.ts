@@ -24,12 +24,17 @@ import { Type, TypeOptions } from './type';
 export type StringOptions = TypeOptions<string> & {
   minLength?: number;
   maxLength?: number;
+  allowEmpty?: boolean;
   hostname?: boolean;
 };
 
 export class StringType extends Type<string> {
   constructor(options: StringOptions = {}) {
-    let schema = internals.string().allow('');
+    let schema = internals.string();
+
+    if (options.allowEmpty === true) {
+      schema = schema.allow('');
+    }
 
     if (options.minLength !== undefined) {
       schema = schema.min(options.minLength);
@@ -48,6 +53,8 @@ export class StringType extends Type<string> {
 
   protected handleError(type: string, { limit, value }: Record<string, any>) {
     switch (type) {
+      case 'any.empty':
+        return `expected string to be non-empty`;
       case 'any.required':
       case 'string.base':
         return `expected value of type [string] but got [${typeDetect(value)}]`;

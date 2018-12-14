@@ -41,7 +41,7 @@ declare module 'joi' {
   };
 
   interface AnySchema {
-    custom(validator: (value: any) => string | void): this;
+    custom(validator: (value: any, context: Record<string, any>) => string | void): this;
   }
 
   // Joi types don't include `schema` function even though it's supported.
