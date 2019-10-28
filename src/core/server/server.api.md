@@ -1490,6 +1490,8 @@ export interface SavedObjectsLegacyService<Request = any> {
     // (undocumented)
     schema: SavedObjectsSchema;
     // (undocumented)
+    setScopedSavedObjectsClientFactory: SavedObjectsClientProvider<Request>['setClientFactory'];
+    // (undocumented)
     types: string[];
 }
 
