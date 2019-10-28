@@ -4,10 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { Feature } from '../../../../../../plugins/features/server';
-import { areActionsFullyCovered } from '../../../common/privilege_calculator_utils';
+import { Feature } from '../../../features/server';
 import { Actions } from './actions';
 import { featurePrivilegeBuilderFactory } from './privileges/feature_privilege_builder';
+import { areActionsFullyCovered } from '../../../../legacy/plugins/security/common/privilege_calculator_utils';
 
 export function validateFeaturePrivileges(actions: Actions, features: Feature[]) {
   const featurePrivilegeBuilder = featurePrivilegeBuilderFactory(actions);

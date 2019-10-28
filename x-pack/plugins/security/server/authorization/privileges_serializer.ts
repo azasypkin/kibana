@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { RawKibanaPrivileges } from '../../../common/model';
 import { PrivilegeSerializer } from './privilege_serializer';
+import { RawKibanaPrivileges } from '../../common/model';
 
 interface SerializedPrivilege {
   application: string;
