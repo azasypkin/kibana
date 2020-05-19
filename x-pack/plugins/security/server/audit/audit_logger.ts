@@ -3,67 +3,38 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+import { checkLicense } from '../../../../legacy/server/lib/check_license';
+import { LICENSE_TYPE_STANDARD, LICENSE_STATUS_VALID } from '../../../../legacy/common/constants';
 
-import { AuthenticationProvider } from '../../common/types';
-import { LegacyAPI } from '../plugin';
+const FEATURE = {
+  ID: 'audit_logging',
+};
 
-export class SecurityAuditLogger {
-  constructor(private readonly getAuditLogger: () => LegacyAPI['auditLogger']) {}
-
-  savedObjectsAuthorizationFailure(
-    username: string,
-    action: string,
-    types: string[],
-    spaceIds: string[],
-    missing: Array<{ spaceId?: string; privilege: string }>,
-    args?: Record<string, unknown>
-  ) {
-    const typesString = types.join(',');
-    const spacesString = spaceIds.length ? ` in [${spaceIds.join(',')}]` : '';
-    const missingString = missing
-      .map(({ spaceId, privilege }) => `${spaceId ? `(${spaceId})` : ''}${privilege}`)
-      .join(',');
-    this.getAuditLogger().log(
-      'saved_objects_authorization_failure',
-      `${username} unauthorized to [${action}] [${typesString}]${spacesString}: missing [${missingString}]`,
-      {
-        username,
-        action,
-        types,
-        spaceIds,
-        missing,
-        args,
-      }
-    );
+export class AuditLogger {
+  constructor(server, pluginId, config, xPackInfo) {
+    this._server = server;
+    this._pluginId = pluginId;
+    this._enabled =
+      config.get('xpack.security.enabled') && config.get('xpack.security.audit.enabled');
+    this._licensed = false;
+    this._checkLicense = xPackInfo => {
+      this._licensed =
+        checkLicense(FEATURE.ID, LICENSE_TYPE_STANDARD, xPackInfo).status === LICENSE_STATUS_VALID;
+    };
+    xPackInfo
+      .feature(`${FEATURE.ID}-${pluginId}`)
+      .registerLicenseCheckResultsGenerator(this._checkLicense);
+    this._checkLicense(xPackInfo);
   }
 
-  savedObjectsAuthorizationSuccess(
-    username: string,
-    action: string,
-    types: string[],
-    spaceIds: string[],
-    args?: Record<string, unknown>
-  ) {
-    const typesString = types.join(',');
-    const spacesString = spaceIds.length ? ` in [${spaceIds.join(',')}]` : '';
-    this.getAuditLogger().log(
-      'saved_objects_authorization_success',
-      `${username} authorized to [${action}] [${typesString}]${spacesString}`,
-      {
-        username,
-        action,
-        types,
-        spaceIds,
-        args,
-      }
-    );
-  }
+  log(eventType, message, data = {}) {
+    if (!this._licensed || !this._enabled) {
+      return;
+    }
 
-  accessAgreementAcknowledged(username: string, provider: AuthenticationProvider) {
-    this.getAuditLogger().log(
-      'access_agreement_acknowledged',
-      `${username} acknowledged access agreement (${provider.type}/${provider.name}).`,
-      { username, provider }
-    );
+    this._server.logWithMetadata(['info', 'audit', this._pluginId, eventType], message, {
+      ...data,
+      eventType,
+    });
   }
 }
