@@ -5,12 +5,11 @@
  * 2.0.
  */
 
-import { first, map } from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import nodeCrypto from '@elastic/node-crypto';
 import { Logger, PluginInitializerContext, CoreSetup } from 'src/core/server';
-import { TypeOf } from '@kbn/config-schema';
 import { SecurityPluginSetup } from '../../security/server';
-import { createConfig, ConfigSchema } from './config';
+import { ConfigType } from './config';
 import {
   EncryptedSavedObjectsService,
   EncryptedSavedObjectTypeRegistration,
@@ -28,7 +27,6 @@ export interface PluginsSetup {
 
 export interface EncryptedSavedObjectsPluginSetup {
   registerType: (typeRegistration: EncryptedSavedObjectTypeRegistration) => void;
-  usingEphemeralEncryptionKey: boolean;
   createMigration: CreateEncryptedSavedObjectsMigrationFn;
 }
 
@@ -53,10 +51,7 @@ export class Plugin {
     deps: PluginsSetup
   ): Promise<EncryptedSavedObjectsPluginSetup> {
     const config = await this.initializerContext.config
-      .create<TypeOf<typeof ConfigSchema>>()
-      .pipe(
-        map((rawConfig) => createConfig(rawConfig, this.initializerContext.logger.get('config')))
-      )
+      .create<ConfigType>()
       .pipe(first())
       .toPromise();
     const auditLogger = new EncryptedSavedObjectsAuditLogger(
@@ -101,7 +96,6 @@ export class Plugin {
     return {
       registerType: (typeRegistration: EncryptedSavedObjectTypeRegistration) =>
         service.registerType(typeRegistration),
-      usingEphemeralEncryptionKey: config.usingEphemeralEncryptionKey,
       createMigration: getCreateMigration(
         service,
         (typeRegistration: EncryptedSavedObjectTypeRegistration) => {

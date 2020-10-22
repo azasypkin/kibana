@@ -5,10 +5,7 @@
  * 2.0.
  */
 
-jest.mock('crypto', () => ({ randomBytes: jest.fn() }));
-
-import { loggingSystemMock } from 'src/core/server/mocks';
-import { createConfig, ConfigSchema } from './config';
+import { ConfigSchema } from './config';
 
 describe('config schema', () => {
   it('generates proper defaults', () => {
@@ -32,9 +29,20 @@ describe('config schema', () => {
       }
     `);
 
-    expect(ConfigSchema.validate({}, { dist: true })).toMatchInlineSnapshot(`
+    expect(ConfigSchema.validate({ encryptionKey: 'z'.repeat(32) }, { dist: true }))
+      .toMatchInlineSnapshot(`
       Object {
         "enabled": true,
+        "encryptionKey": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "keyRotation": Object {
+          "decryptionOnlyKeys": Array [],
+        },
+      }
+    `);
+
+    expect(ConfigSchema.validate({}, { dist: true })).toMatchInlineSnapshot(`
+      Object {
+        "enabled": false,
         "keyRotation": Object {
           "decryptionOnlyKeys": Array [],
         },
@@ -46,7 +54,7 @@ describe('config schema', () => {
     expect(
       ConfigSchema.validate(
         {
-          encryptionKey: 'a'.repeat(32),
+          encryptionKey: 'z'.repeat(32),
           keyRotation: { decryptionOnlyKeys: ['b'.repeat(32), 'c'.repeat(32)] },
         },
         { dist: true }
@@ -54,7 +62,7 @@ describe('config schema', () => {
     ).toMatchInlineSnapshot(`
       Object {
         "enabled": true,
-        "encryptionKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "encryptionKey": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
         "keyRotation": Object {
           "decryptionOnlyKeys": Array [
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -76,6 +84,14 @@ describe('config schema', () => {
       ConfigSchema.validate({ encryptionKey: 'foo' }, { dist: true })
     ).toThrowErrorMatchingInlineSnapshot(
       `"[encryptionKey]: value has length [3] but it must have a minimum length of [32]."`
+    );
+  });
+
+  it('should throw error if `enabled` is set to `true`, but xpack.encryptedSavedObjects.encryptionKey is not specified', () => {
+    expect(() =>
+      ConfigSchema.validate({ enabled: true }, { dist: true })
+    ).toThrowErrorMatchingInlineSnapshot(
+      `"\`enabled\` cannot be set to \`true\` until \`encryptionKey\` is specified."`
     );
   });
 
@@ -119,45 +135,5 @@ describe('config schema', () => {
     ).toThrowErrorMatchingInlineSnapshot(
       `"\`keyRotation.decryptionOnlyKeys\` cannot contain primary encryption key specified in \`encryptionKey\`."`
     );
-  });
-});
-
-describe('createConfig()', () => {
-  it('should log a warning, set xpack.encryptedSavedObjects.encryptionKey and usingEphemeralEncryptionKey=true when encryptionKey is not set', () => {
-    const mockRandomBytes = jest.requireMock('crypto').randomBytes;
-    mockRandomBytes.mockReturnValue('ab'.repeat(16));
-
-    const logger = loggingSystemMock.create().get();
-    const config = createConfig(ConfigSchema.validate({}, { dist: true }), logger);
-    expect(config).toEqual({
-      enabled: true,
-      encryptionKey: 'ab'.repeat(16),
-      keyRotation: { decryptionOnlyKeys: [] },
-      usingEphemeralEncryptionKey: true,
-    });
-
-    expect(loggingSystemMock.collect(logger).warn).toMatchInlineSnapshot(`
-      Array [
-        Array [
-          "Generating a random key for xpack.encryptedSavedObjects.encryptionKey. To decrypt encrypted saved objects attributes after restart, please set xpack.encryptedSavedObjects.encryptionKey in the kibana.yml or use the bin/kibana-encryption-keys command.",
-        ],
-      ]
-    `);
-  });
-
-  it('should not log a warning and set usingEphemeralEncryptionKey=false when encryptionKey is set', async () => {
-    const logger = loggingSystemMock.create().get();
-    const config = createConfig(
-      ConfigSchema.validate({ encryptionKey: 'supersecret'.repeat(3) }, { dist: true }),
-      logger
-    );
-    expect(config).toEqual({
-      enabled: true,
-      encryptionKey: 'supersecret'.repeat(3),
-      keyRotation: { decryptionOnlyKeys: [] },
-      usingEphemeralEncryptionKey: false,
-    });
-
-    expect(loggingSystemMock.collect(logger).warn).toEqual([]);
   });
 });

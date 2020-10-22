@@ -15,14 +15,15 @@ describe('EncryptedSavedObjects Plugin', () => {
   describe('setup()', () => {
     it('exposes proper contract', async () => {
       const plugin = new Plugin(
-        coreMock.createPluginInitializerContext(ConfigSchema.validate({}, { dist: true }))
+        coreMock.createPluginInitializerContext(
+          ConfigSchema.validate({ encryptionKey: 'z'.repeat(32) }, { dist: true })
+        )
       );
       await expect(plugin.setup(coreMock.createSetup(), { security: securityMock.createSetup() }))
         .resolves.toMatchInlineSnapshot(`
               Object {
                 "createMigration": [Function],
                 "registerType": [Function],
-                "usingEphemeralEncryptionKey": true,
               }
             `);
     });
@@ -31,7 +32,9 @@ describe('EncryptedSavedObjects Plugin', () => {
   describe('start()', () => {
     it('exposes proper contract', async () => {
       const plugin = new Plugin(
-        coreMock.createPluginInitializerContext(ConfigSchema.validate({}, { dist: true }))
+        coreMock.createPluginInitializerContext(
+          ConfigSchema.validate({ encryptionKey: 'z'.repeat(32) }, { dist: true })
+        )
       );
       await plugin.setup(coreMock.createSetup(), { security: securityMock.createSetup() });
 
