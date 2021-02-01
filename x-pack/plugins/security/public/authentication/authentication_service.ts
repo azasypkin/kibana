@@ -58,7 +58,7 @@ export class AuthenticationService {
     accessAgreementApp.create({ application, getStartServices });
     captureURLApp.create({ application, fatalErrors, http });
     loginApp.create({ application, config, getStartServices, http });
-    logoutApp.create({ application, http });
+    logoutApp.create({ application, http, getStartServices });
     loggedOutApp.create({ application, getStartServices, http });
     overwrittenSessionApp.create({ application, authc: { getCurrentUser }, getStartServices });
 

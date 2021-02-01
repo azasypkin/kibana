@@ -36,6 +36,7 @@ export const loginApp = Object.freeze({
         ]);
         return renderLoginPage(coreStart.i18n, element, {
           http: coreStart.http,
+          application: coreStart.application,
           notifications: coreStart.notifications,
           fatalErrors: coreStart.fatalErrors,
           loginAssistanceMessage: config.loginAssistanceMessage,

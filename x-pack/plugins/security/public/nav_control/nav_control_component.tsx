@@ -19,7 +19,8 @@ import {
   IconType,
   EuiText,
 } from '@elastic/eui';
-import { AuthenticatedUser } from '../../common/model';
+import type { ApplicationStart } from 'src/core/public';
+import type { AuthenticatedUser } from '../../common/model';
 
 import './nav_control_component.scss';
 
@@ -35,6 +36,7 @@ interface Props {
   editProfileUrl: string;
   logoutUrl: string;
   userMenuLinks$: Observable<UserMenuLink[]>;
+  application: ApplicationStart;
 }
 
 interface State {
@@ -165,7 +167,7 @@ export class SecurityNavControl extends Component<Props, State> {
         />
       ),
       icon: <EuiIcon type="exit" size="m" />,
-      href: logoutUrl,
+      onClick: () => this.props.application.navigateToUrl(logoutUrl),
       'data-test-subj': 'logoutLink',
     };
     items.push(logoutMenuItem);

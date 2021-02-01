@@ -14,7 +14,13 @@ import { parse } from 'url';
 import { EuiFlexGroup, EuiFlexItem, EuiIcon, EuiSpacer, EuiTitle } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n/react';
-import { CoreStart, FatalErrorsStart, HttpStart, NotificationsStart } from 'src/core/public';
+import {
+  ApplicationStart,
+  CoreStart,
+  FatalErrorsStart,
+  HttpStart,
+  NotificationsStart,
+} from 'src/core/public';
 import {
   AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER,
   LOGOUT_REASON_QUERY_STRING_PARAMETER,
@@ -24,6 +30,7 @@ import { LoginForm, DisabledLoginForm } from './components';
 
 interface Props {
   http: HttpStart;
+  application: ApplicationStart;
   notifications: NotificationsStart;
   fatalErrors: FatalErrorsStart;
   loginAssistanceMessage: string;
@@ -220,6 +227,7 @@ export class LoginPage extends Component<Props, State> {
     return (
       <LoginForm
         http={this.props.http}
+        application={this.props.application}
         notifications={this.props.notifications}
         selector={selector}
         // @ts-expect-error Map.get is ok with getting `undefined`

@@ -5,16 +5,17 @@
  */
 
 import { i18n } from '@kbn/i18n';
-import { CoreSetup, HttpSetup } from 'src/core/public';
+import { CoreSetup, HttpSetup, StartServicesAccessor } from 'src/core/public';
 
 interface CreateDeps {
   application: CoreSetup['application'];
+  getStartServices: StartServicesAccessor;
   http: HttpSetup;
 }
 
 export const logoutApp = Object.freeze({
   id: 'security_logout',
-  create({ application, http }: CreateDeps) {
+  create({ application, http, getStartServices }: CreateDeps) {
     http.anonymousPaths.register('/logout');
     application.register({
       id: this.id,
@@ -24,10 +25,12 @@ export const logoutApp = Object.freeze({
       async mount() {
         window.sessionStorage.clear();
 
-        // Redirect user to the server logout endpoint to complete logout.
-        window.location.href = http.basePath.prepend(
-          `/api/security/logout${window.location.search}`
-        );
+        const [[coreStart], { location }] = await Promise.all([
+          getStartServices(),
+          http.post<{ location: string }>(`/api/security/logout${window.location.search}`),
+        ]);
+
+        await coreStart.application.navigateToUrl(location);
 
         return () => {};
       },

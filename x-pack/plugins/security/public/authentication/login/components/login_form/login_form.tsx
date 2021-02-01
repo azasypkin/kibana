@@ -28,13 +28,14 @@ import {
 } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n/react';
-import { HttpStart, IHttpFetchError, NotificationsStart } from 'src/core/public';
+import { ApplicationStart, HttpStart, IHttpFetchError, NotificationsStart } from 'src/core/public';
 import type { LoginSelector, LoginSelectorProvider } from '../../../../../common/login_state';
 import { LoginValidator } from './validate_login';
 
 interface Props {
   http: HttpStart;
   notifications: NotificationsStart;
+  application: ApplicationStart;
   selector: LoginSelector;
   infoMessage?: string;
   loginAssistanceMessage: string;
@@ -509,7 +510,9 @@ export class LoginForm extends Component<Props, State> {
         { body: JSON.stringify({ providerType, providerName, currentURL: window.location.href }) }
       );
 
-      window.location.href = location;
+      await this.props.application.navigateToUrl(location);
+
+      // window.location.href = location;
     } catch (err) {
       this.props.notifications.toasts.addError(
         err?.body?.message ? new Error(err?.body?.message) : err,

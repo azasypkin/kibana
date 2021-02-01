@@ -103,6 +103,7 @@ export class SecurityNavControlService {
           editProfileUrl: core.http.basePath.prepend('/security/account'),
           logoutUrl: this.logoutUrl,
           userMenuLinks$: this.userMenuLinks$,
+          application: core.application,
         };
         ReactDOM.render(
           <I18nContext>

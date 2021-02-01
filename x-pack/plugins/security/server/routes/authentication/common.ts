@@ -70,6 +70,26 @@ export function defineCommonRoutes({
     );
   }
 
+  router.post(
+    {
+      path: '/api/security/logout',
+      // Allow unknown query parameters as this endpoint can be hit by the 3rd-party with any
+      // set of query string parameters (e.g. SAML/OIDC logout request/response parameters).
+      validate: { query: schema.object({}, { unknowns: 'allow' }) },
+      options: { authRequired: false },
+    },
+    async (context, request, response) => {
+      const deauthenticationResult = await getAuthenticationService().logout(request);
+      if (deauthenticationResult.failed()) {
+        return response.customError(wrapIntoCustomErrorResponse(deauthenticationResult.error));
+      }
+
+      return response.ok({
+        body: { location: deauthenticationResult.redirectURL || `${basePath.serverBasePath}/` },
+      });
+    }
+  );
+
   // Generate two identical routes with new and deprecated URL and issue a warning if route with deprecated URL is ever used.
   for (const path of ['/internal/security/me', '/api/security/v1/me']) {
     router.get(
