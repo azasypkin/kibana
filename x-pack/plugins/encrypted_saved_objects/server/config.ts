@@ -7,18 +7,11 @@
 
 import { schema, TypeOf } from '@kbn/config-schema';
 
-export type ConfigType = Omit<TypeOf<typeof ConfigSchema>, 'encryptionKey'> & {
-  encryptionKey: string;
-};
+export type ConfigType = TypeOf<typeof ConfigSchema>;
 
 export const ConfigSchema = schema.object(
   {
-    enabled: schema.conditional(
-      schema.siblingRef('encryptionKey'),
-      schema.string({ minLength: 32 }),
-      schema.boolean({ defaultValue: true }),
-      schema.boolean({ defaultValue: false })
-    ),
+    enabled: schema.boolean({ defaultValue: true }),
     encryptionKey: schema.conditional(
       schema.contextRef('dist'),
       true,
@@ -34,10 +27,6 @@ export const ConfigSchema = schema.object(
       const decryptionOnlyKeys = value.keyRotation?.decryptionOnlyKeys ?? [];
       if (value.encryptionKey && decryptionOnlyKeys.includes(value.encryptionKey)) {
         return '`keyRotation.decryptionOnlyKeys` cannot contain primary encryption key specified in `encryptionKey`.';
-      }
-
-      if (value.enabled && !value.encryptionKey) {
-        return '`enabled` cannot be set to `true` until `encryptionKey` is specified.';
       }
     },
   }

@@ -42,7 +42,7 @@ describe('config schema', () => {
 
     expect(ConfigSchema.validate({}, { dist: true })).toMatchInlineSnapshot(`
       Object {
-        "enabled": false,
+        "enabled": true,
         "keyRotation": Object {
           "decryptionOnlyKeys": Array [],
         },
@@ -54,7 +54,7 @@ describe('config schema', () => {
     expect(
       ConfigSchema.validate(
         {
-          encryptionKey: 'z'.repeat(32),
+          encryptionKey: 'a'.repeat(32),
           keyRotation: { decryptionOnlyKeys: ['b'.repeat(32), 'c'.repeat(32)] },
         },
         { dist: true }
@@ -62,7 +62,7 @@ describe('config schema', () => {
     ).toMatchInlineSnapshot(`
       Object {
         "enabled": true,
-        "encryptionKey": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+        "encryptionKey": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "keyRotation": Object {
           "decryptionOnlyKeys": Array [
             "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -84,14 +84,6 @@ describe('config schema', () => {
       ConfigSchema.validate({ encryptionKey: 'foo' }, { dist: true })
     ).toThrowErrorMatchingInlineSnapshot(
       `"[encryptionKey]: value has length [3] but it must have a minimum length of [32]."`
-    );
-  });
-
-  it('should throw error if `enabled` is set to `true`, but xpack.encryptedSavedObjects.encryptionKey is not specified', () => {
-    expect(() =>
-      ConfigSchema.validate({ enabled: true }, { dist: true })
-    ).toThrowErrorMatchingInlineSnapshot(
-      `"\`enabled\` cannot be set to \`true\` until \`encryptionKey\` is specified."`
     );
   });
 

@@ -5,11 +5,17 @@
  * 2.0.
  */
 
-import { first } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 import nodeCrypto from '@elastic/node-crypto';
-import { Logger, PluginInitializerContext, CoreSetup } from 'src/core/server';
-import { SecurityPluginSetup } from '../../security/server';
-import { ConfigType } from './config';
+import {
+  Logger,
+  PluginInitializerContext,
+  CoreSetup,
+  ServiceStatusLevels,
+  ServiceStatus,
+} from '../../../../src/core/server';
+import type { SecurityPluginSetup } from '../../security/server';
+import type { ConfigType } from './config';
 import {
   EncryptedSavedObjectsService,
   EncryptedSavedObjectTypeRegistration,
@@ -36,6 +42,13 @@ export interface EncryptedSavedObjectsPluginStart {
 }
 
 /**
+ * Describes the shape of the `meta` property of the plugin status.
+ */
+export interface EncryptedSavedObjectsPluginStatusMeta {
+  encryptionKeyIsMissing?: boolean;
+}
+
+/**
  * Represents EncryptedSavedObjects Plugin instance that will be managed by the Kibana plugin system.
  */
 export class Plugin {
@@ -46,23 +59,32 @@ export class Plugin {
     this.logger = this.initializerContext.logger.get();
   }
 
-  public async setup(
-    core: CoreSetup,
-    deps: PluginsSetup
-  ): Promise<EncryptedSavedObjectsPluginSetup> {
-    const config = await this.initializerContext.config
-      .create<ConfigType>()
-      .pipe(first())
-      .toPromise();
-    const auditLogger = new EncryptedSavedObjectsAuditLogger(
-      deps.security?.audit.getLogger('encryptedSavedObjects')
-    );
+  public setup(core: CoreSetup, deps: PluginsSetup): EncryptedSavedObjectsPluginSetup {
+    const config = this.initializerContext.config.get<ConfigType>();
+    if (!config.encryptionKey) {
+      const status: ServiceStatus<EncryptedSavedObjectsPluginStatusMeta> = {
+        level: ServiceStatusLevels.degraded,
+        summary: 'Saved objects encryption key is not set.',
+        detail:
+          'Saved objects encryption key is not set. This will severely limit Kibana functionality. ' +
+          'Please set xpack.encryptedSavedObjects.encryptionKey in the kibana.yml or use the bin/kibana-encryption-keys command.',
+        documentationUrl: `https://www.elastic.co/guide/en/kibana/${this.initializerContext.env.packageInfo.branch}/xpack-security-secure-saved-objects.html#xpack-security-secure-saved-objects`,
+        meta: { encryptionKeyIsMissing: true },
+      };
 
-    const primaryCrypto = nodeCrypto({ encryptionKey: config.encryptionKey });
+      this.logger.warn(status.detail!);
+      core.status.set(new BehaviorSubject(status));
+    }
+
+    const primaryCrypto = config.encryptionKey
+      ? nodeCrypto({ encryptionKey: config.encryptionKey })
+      : undefined;
     const decryptionOnlyCryptos = config.keyRotation.decryptionOnlyKeys.map((decryptionKey) =>
       nodeCrypto({ encryptionKey: decryptionKey })
     );
-
+    const auditLogger = new EncryptedSavedObjectsAuditLogger(
+      deps.security?.audit.getLogger('encryptedSavedObjects')
+    );
     const service = Object.freeze(
       new EncryptedSavedObjectsService({
         primaryCrypto,

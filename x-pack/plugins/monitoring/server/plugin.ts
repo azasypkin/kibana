@@ -83,6 +83,7 @@ export class Plugin {
   }
 
   async setup(core: CoreSetup, plugins: PluginsSetup) {
+    console.log(`D:SETUP`);
     const [config, legacyConfig] = await combineLatest([
       this.initializerContext.config
         .create<TypeOf<typeof configSchema>>()
@@ -211,6 +212,12 @@ export class Plugin {
         plugins
       );
 
+      console.log(`ONE`);
+      core.status.dependencies$.subscribe((deps) => {
+        console.log(`A: ${JSON.stringify(deps.encryptedSavedObjects?.level)}`);
+      });
+      console.log('TWO');
+
       this.registerPluginInUI(plugins);
       requireUIRoutes(this.monitoringCore, {
         cluster,
@@ -229,7 +236,9 @@ export class Plugin {
     };
   }
 
-  start() {}
+  start() {
+    console.log(`D:START`);
+  }
 
   stop() {
     if (this.cluster) {
