@@ -19,6 +19,7 @@ import { FormattedMessage } from '@kbn/i18n/react';
 import type { CoreStart, FatalErrorsStart, HttpStart, NotificationsStart } from 'src/core/public';
 
 import {
+  AUTH_LAYOUT_QUERY_STRING_PARAMETER,
   AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER,
   LOGOUT_REASON_QUERY_STRING_PARAMETER,
 } from '../../../common/constants';
@@ -220,6 +221,7 @@ export class LoginPage extends Component<Props, State> {
     }
 
     const query = parse(window.location.href, true).query;
+    const loginAssistanceMessage = query[AUTH_LAYOUT_QUERY_STRING_PARAMETER]?.toString() ?? '';
     return (
       <LoginForm
         http={this.props.http}
@@ -227,7 +229,7 @@ export class LoginPage extends Component<Props, State> {
         selector={selector}
         // @ts-expect-error Map.get is ok with getting `undefined`
         infoMessage={infoMessageMap.get(query[LOGOUT_REASON_QUERY_STRING_PARAMETER]?.toString())}
-        loginAssistanceMessage={this.props.loginAssistanceMessage}
+        loginAssistanceMessage={loginAssistanceMessage}
         loginHelp={loginHelp}
         authProviderHint={query[AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER]?.toString()}
       />

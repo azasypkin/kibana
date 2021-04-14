@@ -10,6 +10,7 @@ import type { IBasePath, IClusterClient, LoggerFactory } from 'src/core/server';
 
 import { KibanaRequest } from '../../../../../src/core/server';
 import {
+  AUTH_LAYOUT_QUERY_STRING_PARAMETER,
   AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER,
   LOGOUT_PROVIDER_QUERY_STRING_PARAMETER,
   LOGOUT_REASON_QUERY_STRING_PARAMETER,
@@ -339,21 +340,26 @@ export class Authenticator {
     const suggestedProviderName =
       existingSessionValue?.provider.name ??
       request.url.searchParams.get(AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER);
+    const suggestedLayout = request.url.searchParams.get(AUTH_LAYOUT_QUERY_STRING_PARAMETER);
 
     if (this.shouldRedirectToLoginSelector(request, existingSessionValue)) {
       this.logger.debug('Redirecting request to Login Selector.');
+
+      const params = new URLSearchParams();
+      params.set(
+        NEXT_URL_QUERY_STRING_PARAMETER,
+        `${this.options.basePath.get(request)}${request.url.pathname}${request.url.search}`
+      );
+
+      if (suggestedProviderName && !existingSessionValue) {
+        params.set(AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER, suggestedProviderName);
+      }
+
+      if (suggestedLayout) {
+        params.set(AUTH_LAYOUT_QUERY_STRING_PARAMETER, suggestedLayout);
+      }
       return AuthenticationResult.redirectTo(
-        `${
-          this.options.basePath.serverBasePath
-        }/login?${NEXT_URL_QUERY_STRING_PARAMETER}=${encodeURIComponent(
-          `${this.options.basePath.get(request)}${request.url.pathname}${request.url.search}`
-        )}${
-          suggestedProviderName && !existingSessionValue
-            ? `&${AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER}=${encodeURIComponent(
-                suggestedProviderName
-              )}`
-            : ''
-        }`
+        `${this.options.basePath.serverBasePath}/login?${params.toString()}`
       );
     }
 
