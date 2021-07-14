@@ -107,7 +107,7 @@ export class HttpResourcesService implements CoreService<InternalHttpResourcesSe
       },
       async renderAnonymousCoreApp(options: HttpResourcesRenderOptions = {}) {
         const apmConfig = getApmConfig(request.url.pathname);
-        const body = await deps.rendering.render(request, context.core.uiSettings.client, {
+        const body = await deps.rendering.render(request, context.core?.uiSettings.client, {
           includeUserSettings: false,
           vars: {
             apmConfig,

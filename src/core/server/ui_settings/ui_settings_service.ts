@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { mapToObject } from '@kbn/std';
 
+import { omit } from 'lodash';
 import { CoreService } from '../../types';
 import { CoreContext } from '../core_context';
 import { Logger } from '../logging';
@@ -51,22 +52,14 @@ export class UiSettingsService
   public async preboot(): Promise<InternalUiSettingsServicePreboot> {
     this.log.debug('Prebooting ui settings service');
 
-    const { overrides } = await this.config$.pipe(first()).toPromise();
-    this.overrides = overrides;
-
     this.register(getCoreSettings({ isDist: this.isDist }));
 
-    const { version, buildNum } = this.coreContext.env.packageInfo;
     return {
-      createDefaultsClient: () =>
-        new UiSettingsClient({
-          type: 'config',
-          id: version,
-          buildNum,
-          defaults: mapToObject(this.uiSettingsDefaults),
-          overrides: this.overrides,
-          log: this.log,
-        }),
+      coreDefaultUiSettings: Object.freeze(
+        Object.fromEntries(
+          [...this.uiSettingsDefaults.entries()].map(([key, value]) => [key, omit(value, 'schema')])
+        )
+      ),
     };
   }
 

@@ -50,7 +50,6 @@ export interface InternalCorePreboot {
   context: InternalContextPreboot;
   http: InternalHttpServicePreboot;
   elasticsearch: InternalElasticsearchServicePreboot;
-  uiSettings: InternalUiSettingsServicePreboot;
   httpResources: InternalHttpResourcesPreboot;
   logging: InternalLoggingServicePreboot;
   preboot: InternalPrebootServicePreboot;

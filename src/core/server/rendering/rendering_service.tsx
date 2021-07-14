@@ -25,17 +25,22 @@ import {
 import { registerBootstrapRoute, bootstrapRendererFactory } from './bootstrap';
 import { getSettingValue, getStylesheetPaths } from './render_utils';
 import { KibanaRequest, LegacyRequest } from '../http';
+import type { PublicUiSettingsParams } from '../../types';
 import { IUiSettingsClient } from '../ui_settings';
 
-type RenderOptions = (RenderingPrebootDeps & { status?: never }) | RenderingSetupDeps;
+type RenderOptions =
+  | (Pick<RenderingPrebootDeps, 'http' | 'uiPlugins'> & { status?: never })
+  | RenderingSetupDeps;
 
 /** @internal */
 export class RenderingService {
+  private coreDefaultUiSettings?: Record<string, PublicUiSettingsParams>;
   constructor(private readonly coreContext: CoreContext) {}
 
   public async preboot({
     http,
     uiPlugins,
+    uiSettings,
   }: RenderingPrebootDeps): Promise<InternalRenderingServicePreboot> {
     http.registerRoutes('', (router) => {
       registerBootstrapRoute({
@@ -48,6 +53,8 @@ export class RenderingService {
         }),
       });
     });
+
+    this.coreDefaultUiSettings = uiSettings.coreDefaultUiSettings;
 
     return {
       render: this.render.bind(this, { http, uiPlugins }),
@@ -77,7 +84,7 @@ export class RenderingService {
   private async render(
     { http, uiPlugins, status }: RenderOptions,
     request: KibanaRequest | LegacyRequest,
-    uiSettings: IUiSettingsClient,
+    uiSettings?: IUiSettingsClient,
     { includeUserSettings = true, vars }: IRenderOptions = {}
   ) {
     const env = {
@@ -88,8 +95,8 @@ export class RenderingService {
     const basePath = http.basePath.get(request);
     const { serverBasePath, publicBaseUrl } = http.basePath;
     const settings = {
-      defaults: uiSettings.getRegistered() ?? {},
-      user: includeUserSettings ? await uiSettings.getUserProvided() : {},
+      defaults: uiSettings?.getRegistered() ?? this.coreDefaultUiSettings ?? {},
+      user: includeUserSettings && uiSettings ? await uiSettings.getUserProvided() : {},
     };
 
     const darkMode = getSettingValue('theme:darkMode', settings, Boolean);

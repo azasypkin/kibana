@@ -28,7 +28,7 @@ interface FactoryOptions {
 
 interface RenderedOptions {
   request: KibanaRequest;
-  uiSettingsClient: IUiSettingsClient;
+  uiSettingsClient?: IUiSettingsClient;
 }
 
 interface RendererResult {
@@ -54,8 +54,10 @@ export const bootstrapRendererFactory: BootstrapRendererFactory = ({
 
     try {
       const authenticated = isAuthenticated(request);
-      darkMode = authenticated ? await uiSettingsClient.get('theme:darkMode') : false;
-      themeVersion = authenticated ? await uiSettingsClient.get('theme:version') : 'v8';
+      darkMode =
+        authenticated && uiSettingsClient ? await uiSettingsClient.get('theme:darkMode') : false;
+      themeVersion =
+        authenticated && uiSettingsClient ? await uiSettingsClient.get('theme:version') : 'v8';
     } catch (e) {
       // just use the default values in case of connectivity issues with ES
     }

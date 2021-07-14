@@ -17,7 +17,11 @@ import {
   LegacyRequest,
 } from '../http';
 import { UiPlugins, DiscoveredPlugin } from '../plugins';
-import { IUiSettingsClient, UserProvidedValues } from '../ui_settings';
+import {
+  InternalUiSettingsServicePreboot,
+  IUiSettingsClient,
+  UserProvidedValues,
+} from '../ui_settings';
 import type { InternalStatusServiceSetup } from '../status';
 import { IExternalUrlPolicy } from '../external_url';
 
@@ -66,6 +70,7 @@ export interface RenderingMetadata {
 /** @internal */
 export interface RenderingPrebootDeps {
   http: InternalHttpServicePreboot;
+  uiSettings: InternalUiSettingsServicePreboot;
   uiPlugins: UiPlugins;
 }
 
@@ -105,7 +110,7 @@ export interface InternalRenderingServiceSetup {
    */
   render<R extends KibanaRequest | LegacyRequest>(
     request: R,
-    uiSettings: IUiSettingsClient,
+    uiSettings?: IUiSettingsClient,
     options?: IRenderOptions
   ): Promise<string>;
 }

@@ -156,7 +156,11 @@ export class Server {
     const elasticsearchServicePreboot = await this.elasticsearch.preboot();
     const uiSettingsPreboot = await this.uiSettings.preboot();
 
-    const renderingPreboot = await this.rendering.preboot({ http: httpPreboot, uiPlugins });
+    const renderingPreboot = await this.rendering.preboot({
+      http: httpPreboot,
+      uiPlugins,
+      uiSettings: uiSettingsPreboot,
+    });
     const httpResourcesPreboot = this.httpResources.preboot({
       http: httpPreboot,
       rendering: renderingPreboot,
@@ -168,17 +172,12 @@ export class Server {
       context: contextServicePreboot,
       elasticsearch: elasticsearchServicePreboot,
       http: httpPreboot,
-      uiSettings: uiSettingsPreboot,
       httpResources: httpResourcesPreboot,
       logging: loggingPreboot,
       preboot: this.prebootService.preboot(),
     };
 
     await this.plugins.preboot(corePreboot);
-
-    httpPreboot.registerRouteHandlerContext(coreId, 'core', (() => {
-      return new PrebootCoreRouteHandlerContext(corePreboot);
-    }) as any);
 
     this.coreApp.preboot(corePreboot, uiPlugins);
 
