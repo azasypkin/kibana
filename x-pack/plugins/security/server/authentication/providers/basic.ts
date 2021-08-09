@@ -8,6 +8,8 @@
 import type { KibanaRequest } from 'src/core/server';
 
 import { NEXT_URL_QUERY_STRING_PARAMETER } from '../../../common/constants';
+import type { AuthenticationInfo } from '../../elasticsearch';
+import { getDetailedErrorMessage } from '../../errors';
 import { AuthenticationResult } from '../authentication_result';
 import { canRedirectRequest } from '../can_redirect_request';
 import { DeauthenticationResult } from '../deauthentication_result';
@@ -15,6 +17,8 @@ import {
   BasicHTTPAuthorizationHeaderCredentials,
   HTTPAuthorizationHeader,
 } from '../http_authentication';
+import type { TokenPair } from '../tokens';
+import type { AuthenticationProviderOptions } from './base';
 import { BaseAuthenticationProvider } from './base';
 
 /**
@@ -57,6 +61,30 @@ export class BasicAuthenticationProvider extends BaseAuthenticationProvider {
   static readonly type = 'basic';
 
   /**
+   * Indicates whether provider should use Elasticsearch token API instead of plain username/password
+   * authentication. If set to `true` provider will use username/password only once during login to
+   * exchange them to access/refresh token pair that will used for all subsequent authentication
+   * attempts. Default is `false`.
+   */
+  private readonly useTokens: boolean;
+
+  /**
+   * Indicates whether provider should fall back to the plain username/password authentication in case
+   * token API is not available. Default is `true`.
+   */
+  private readonly fallbackToUsernameAndPassword: boolean;
+
+  constructor(
+    protected readonly options: Readonly<AuthenticationProviderOptions>,
+    basicOptions?: Readonly<{ useTokens?: boolean; fallbackToUsernameAndPassword?: boolean }>
+  ) {
+    super(options);
+
+    this.useTokens = basicOptions?.useTokens ?? false;
+    this.fallbackToUsernameAndPassword = basicOptions?.fallbackToUsernameAndPassword ?? true;
+  }
+
+  /**
    * Performs initial login request using username and password.
    * @param request Request instance.
    * @param attempt User credentials.
@@ -67,8 +95,56 @@ export class BasicAuthenticationProvider extends BaseAuthenticationProvider {
     { username, password }: ProviderLoginAttempt,
     state?: ProviderState | null
   ) {
-    this.logger.debug('Trying to perform a login.');
+    if (this.useTokens) {
+      this.logger.debug('Trying to perform a login using Token API.');
+      try {
+        const {
+          body: { access_token: accessToken, refresh_token: refreshToken, authentication },
+        } = await this.options.client.asInternalUser.security.getToken({
+          body: { grant_type: 'password', username, password },
+        });
 
+        this.logger.debug('Get token API request to Elasticsearch was successful.');
+
+        const newState = this.fallbackToUsernameAndPassword
+          ? { accessToken, refreshToken, fallback: { username, password } }
+          : { accessToken, refreshToken };
+
+        if (state) {
+          this.logger.debug(`Invalidating tokens from the previous user sessions.`);
+          try {
+            await this.options.tokens.invalidate({
+              accessToken: state.accessToken,
+              refreshToken: state.refreshToken,
+            });
+          } catch (err) {
+            this.logger.debug(
+              `Failed to invalidate tokens from the previous session: ${getDetailedErrorMessage(
+                err
+              )}`
+            );
+          }
+        }
+
+        return AuthenticationResult.succeeded(
+          this.authenticationInfoToAuthenticatedUser(
+            // @ts-expect-error @elastic/elasticsearch metadata defined as Record<string, any>;
+            authentication as AuthenticationInfo
+          ),
+          {
+            authHeaders: {
+              authorization: new HTTPAuthorizationHeader('Bearer', accessToken).toString(),
+            },
+            state: newState,
+          }
+        );
+      } catch (err) {
+        const disabledFeature = err.body?.error?.['disabled.feature'];
+        return disabledFeature === 'security_tokens';
+      }
+    }
+
+    this.logger.debug('Trying to perform a login using username and password.');
     const authHeaders = {
       authorization: new HTTPAuthorizationHeader(
         'Basic',
@@ -143,6 +219,40 @@ export class BasicAuthenticationProvider extends BaseAuthenticationProvider {
    */
   public getHTTPAuthenticationScheme() {
     return 'basic';
+  }
+
+  private async loginUsingTokens({ username, password }: ProviderLoginAttempt) {
+    this.logger.debug('Trying to perform a login use token API.');
+
+    try {
+      const {
+        body: {
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          authentication: authenticationInfo,
+        },
+      } = await this.options.client.asInternalUser.security.getToken({
+        body: { grant_type: 'password', username, password },
+      });
+
+      this.logger.debug('Get token API request to Elasticsearch successful');
+
+      return AuthenticationResult.succeeded(
+        this.authenticationInfoToAuthenticatedUser(
+          // @ts-expect-error @elastic/elasticsearch metadata defined as Record<string, any>;
+          authenticationInfo as AuthenticationInfo
+        ),
+        {
+          authHeaders: {
+            authorization: new HTTPAuthorizationHeader('Bearer', accessToken).toString(),
+          },
+          state: { accessToken, refreshToken },
+        }
+      );
+    } catch (err) {
+      const disabledFeature = err.body?.error?.['disabled.feature'];
+      return disabledFeature === 'security_tokens';
+    }
   }
 
   /**
