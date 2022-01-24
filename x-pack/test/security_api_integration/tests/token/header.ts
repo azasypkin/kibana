@@ -25,12 +25,18 @@ export default function ({ getService }: FtrProviderContext) {
 
   describe('header', () => {
     it('accepts valid access token via authorization Bearer header', async () => {
-      const token = await createToken();
+      const { access_token: accessToken } = await es.security.getToken({
+        body: {
+          grant_type: 'password',
+          username: 'elastic',
+          password: 'changeme',
+        },
+      });
 
       await supertest
         .get('/internal/security/me')
         .set('kbn-xsrf', 'true')
-        .set('authorization', `Bearer ${token}`)
+        .set('authorization', `Bearer ${accessToken}`)
         .expect(200);
     });
 

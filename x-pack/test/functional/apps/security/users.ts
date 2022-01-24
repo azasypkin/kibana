@@ -18,10 +18,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
   const retry = getService('retry');
   const toasts = getService('toasts');
   const browser = getService('browser');
-
-  function isCloudEnvironment() {
-    return config.get('servers.elasticsearch.hostname') !== 'localhost';
-  }
+  const deployment = getService('deployment');
 
   describe('users', function () {
     const optionalUser: UserFormValues = {
@@ -43,7 +40,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
       log.info('config = %j', config.get('servers.elasticsearch.hostname'));
 
       // In Cloud default users are defined in file realm, such users aren't exposed through the Users API.
-      if (isCloudEnvironment()) {
+      if (await deployment.isCloud()) {
         expect(Object.keys(users)).to.eql(['test_user']);
       } else {
         expect(users.elastic.roles).to.eql(['superuser']);
