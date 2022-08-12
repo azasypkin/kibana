@@ -76,6 +76,11 @@ export type UserProfileData = Record<string, unknown>;
  */
 export type UserProfileLabels = Record<string, string>;
 
+export interface UserProfileMfaData {
+  attestation?: { credentialId: string; publicKey: string };
+  challenge?: string;
+}
+
 /**
  * Avatar stored in user profile.
  */

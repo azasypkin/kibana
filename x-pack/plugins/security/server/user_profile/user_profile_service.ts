@@ -322,7 +322,12 @@ export class UserProfileService {
       // @ts-expect-error Invalid response format.
       body = (await clusterClient.asInternalUser.security.getUserProfile({
         uid: userSession.userProfileId,
-        data: dataPath ? `${KIBANA_DATA_ROOT}.${dataPath}` : undefined,
+        data: dataPath
+          ? dataPath
+              .split(',')
+              .map((path) => `${KIBANA_DATA_ROOT}.${path}`)
+              .join(',')
+          : undefined,
       })) as { profiles: SecurityUserProfileWithMetadata[] };
     } catch (error) {
       this.logger.error(

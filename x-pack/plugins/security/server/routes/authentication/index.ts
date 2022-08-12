@@ -7,11 +7,13 @@
 
 import type { RouteDefinitionParams } from '..';
 import { defineCommonRoutes } from './common';
+import { defineMfaRoutes } from './mfa';
 import { defineOIDCRoutes } from './oidc';
 import { defineSAMLRoutes } from './saml';
 
 export function defineAuthenticationRoutes(params: RouteDefinitionParams) {
   defineCommonRoutes(params);
+  defineMfaRoutes(params);
 
   if (params.config.authc.sortedProviders.some(({ type }) => type === 'saml')) {
     defineSAMLRoutes(params);

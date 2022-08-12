@@ -20,6 +20,7 @@ import {
   EuiIconTip,
   EuiPageTemplate,
   EuiSpacer,
+  EuiSwitch,
   EuiText,
   useEuiTheme,
   useGeneratedHtmlId,
@@ -35,7 +36,7 @@ import { FormattedMessage } from '@kbn/i18n-react';
 import { useKibana } from '@kbn/kibana-react-plugin/public';
 import { UserAvatar } from '@kbn/user-profile-components';
 
-import type { AuthenticatedUser, UserProfileAvatarData } from '../../../common';
+import type { AuthenticatedUser, UserProfileAvatarData, UserProfileMfaData } from '../../../common';
 import {
   canUserChangeDetails,
   canUserChangePassword,
@@ -52,6 +53,7 @@ import {
 import { FormField } from '../../components/form_field';
 import { FormLabel } from '../../components/form_label';
 import { FormRow, OptionalText } from '../../components/form_row';
+import { ChangeMfaModal } from '../../management/users/edit_user/change_mfa_modal';
 import { ChangePasswordModal } from '../../management/users/edit_user/change_password_modal';
 import { isUserReserved } from '../../management/users/user_utils';
 import { createImageHandler, getRandomColor, IMAGE_FILE_TYPES, VALID_HEX_COLOR } from './utils';
@@ -60,6 +62,7 @@ export interface UserProfileProps {
   user: AuthenticatedUser;
   data?: {
     avatar?: UserProfileAvatarData;
+    mfa?: UserProfileMfaData;
   };
 }
 
@@ -430,6 +433,47 @@ function UserPasswordEditor({
   );
 }
 
+function TwoFactorAuthenticationEditor({
+  data,
+  onShowMfaForm,
+}: {
+  data?: { mfa?: UserProfileMfaData };
+  onShowMfaForm: (enroll: boolean) => void;
+}) {
+  return (
+    <EuiDescribedFormGroup
+      fullWidth
+      title={
+        <h2>
+          <FormattedMessage
+            id="xpack.security.accountManagement.userProfile.mfaGroupTitle"
+            defaultMessage="Two-factor authentication"
+          />
+        </h2>
+      }
+      description={
+        <FormattedMessage
+          id="xpack.security.accountManagement.userProfile.mfaGroupDescription"
+          defaultMessage="Add an extra layer of security by setting up hardware security key."
+        />
+      }
+    >
+      <EuiFormRow fullWidth>
+        <EuiSwitch
+          label={
+            <FormattedMessage
+              id="xpack.security.accountManagement.userProfile.mfaButton"
+              defaultMessage="Security key"
+            />
+          }
+          checked={!!data?.mfa?.attestation}
+          onChange={() => onShowMfaForm(!data?.mfa?.attestation)}
+        />
+      </EuiFormRow>
+    </EuiDescribedFormGroup>
+  );
+}
+
 export const UserProfile: FunctionComponent<UserProfileProps> = ({ user, data }) => {
   const { euiTheme } = useEuiTheme();
   const { services } = useKibana<CoreStart>();
@@ -437,6 +481,10 @@ export const UserProfile: FunctionComponent<UserProfileProps> = ({ user, data })
   const formChanges = useFormChanges();
   const titleId = useGeneratedHtmlId();
   const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
+  const [showMfaForm, setShowMfaForm] = useState<{ show: boolean; enroll: boolean }>({
+    show: false,
+    enroll: false,
+  });
 
   const canChangeDetails = canUserChangeDetails(user, services.application.capabilities);
 
@@ -513,6 +561,14 @@ export const UserProfile: FunctionComponent<UserProfileProps> = ({ user, data })
             />
           ) : null}
 
+          {showMfaForm.show ? (
+            <ChangeMfaModal
+              enroll={showMfaForm.enroll}
+              onCancel={() => setShowMfaForm({ show: false, enroll: false })}
+              onSuccess={() => setShowMfaForm({ show: false, enroll: false })}
+            />
+          ) : null}
+
           <EuiPageTemplate
             className="eui-fullHeight"
             pageHeader={{
@@ -566,6 +622,10 @@ export const UserProfile: FunctionComponent<UserProfileProps> = ({ user, data })
               <UserPasswordEditor
                 user={user}
                 onShowPasswordForm={() => setShowChangePasswordForm(true)}
+              />
+              <TwoFactorAuthenticationEditor
+                data={data}
+                onShowMfaForm={(enroll) => setShowMfaForm({ show: true, enroll })}
               />
             </Form>
             <EuiSpacer />

@@ -24,6 +24,7 @@ export type {
   UserProfileData,
   UserProfileLabels,
   UserProfileAvatarData,
+  UserProfileMfaData,
   UserProfileUserInfoWithSecurity,
   ApiKey,
   UserRealm,

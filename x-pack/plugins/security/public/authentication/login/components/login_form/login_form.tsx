@@ -456,6 +456,69 @@ export class LoginForm extends Component<LoginFormProps, State> {
       message: { type: MessageType.None },
     });
 
+    const { mfaRequired, challenge, credentialId } = await this.props.http.post<{
+      mfaRequired: boolean;
+      challenge: string;
+      credentialId: string;
+    }>('/internal/security/mfa/login_verify_start', {
+      body: JSON.stringify({ params: { username, password } }),
+    });
+
+    if (mfaRequired) {
+      this.setState({
+        loadingState: { type: LoadingStateType.Form },
+        message: { type: MessageType.Info, content: 'Verifying security token...' },
+      });
+
+      try {
+        const credential = await navigator.credentials.get({
+          publicKey: {
+            rpId: 'localhost',
+            challenge: Uint8Array.from(challenge, (c) => c.charCodeAt(0)),
+            allowCredentials: [
+              {
+                id: Uint8Array.from(window.atob(credentialId), (c) => c.charCodeAt(0)),
+                type: 'public-key',
+              },
+            ],
+            userVerification: 'discouraged',
+            timeout: 60000,
+          },
+        });
+
+        const pkResponse = (credential as PublicKeyCredential)
+          .response as AuthenticatorAssertionResponse;
+
+        await this.props.http.fetch('/internal/security/mfa/login_verify_finish', {
+          method: 'POST',
+          body: JSON.stringify({
+            signature: window.btoa(String.fromCharCode(...new Uint8Array(pkResponse.signature))),
+            clientDataJSON: window.btoa(
+              String.fromCharCode(...new Uint8Array(pkResponse.clientDataJSON))
+            ),
+            authenticatorData: window.btoa(
+              String.fromCharCode(...new Uint8Array(pkResponse.authenticatorData))
+            ),
+            params: { username, password },
+          }),
+        });
+      } catch (err) {
+        this.setState({
+          message: {
+            type: MessageType.Danger,
+            content: `We couldn't log you in. Please try again: ${err?.message}.`,
+          },
+          loadingState: { type: LoadingStateType.None },
+        });
+        return;
+      }
+    }
+
+    this.setState({
+      loadingState: { type: LoadingStateType.Form },
+      message: { type: MessageType.None },
+    });
+
     // We try to log in with the provider that uses login form and has the lowest order.
     const providerToLoginWith = this.props.selector.providers.find(
       (provider) => provider.usesLoginForm
