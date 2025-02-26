@@ -44,6 +44,7 @@ export const CreateRoleModal = ({ onClose }: CreateRoleModalProps) => {
   const [prompt, setPrompt] = useState<string>('');
   const [model, setModel] = useState<string>('ollama/qwen2.5:14b');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
 
   const generateRole = async () => {
     setIsLoading(true);
@@ -65,18 +66,18 @@ export const CreateRoleModal = ({ onClose }: CreateRoleModalProps) => {
     }
 
     const { name, description, kibana, elasticsearch } = roleDefinition.role;
-    setIsLoading(true);
+    setIsLoginLoading(true);
     try {
       await services.http.put(`/api/security/role/${name}`, {
         body: JSON.stringify({ description, kibana, elasticsearch }),
         // OMG! OMG! OMG! Hardcoded superuser credentials!!!
         headers: { Authorization: `Basic ${btoa('elastic_serverless:changeme')}` },
       });
-      onClose(roleDefinition.role.name as string);
+      await onClose(roleDefinition.role.name as string);
     } catch {
       //
     }
-    setIsLoading(false);
+    setIsLoginLoading(false);
   };
 
   return (
@@ -87,7 +88,7 @@ export const CreateRoleModal = ({ onClose }: CreateRoleModalProps) => {
       <EuiModalBody>
         <EuiForm>
           <EuiSelect
-            disabled={isLoading}
+            disabled={isLoading || isLoginLoading}
             options={[
               {
                 value: 'ollama/qwen2.5:1.5b',
@@ -121,7 +122,7 @@ export const CreateRoleModal = ({ onClose }: CreateRoleModalProps) => {
             onChange={(e) => setPrompt(e.target.value)}
             className={'rolePrompt'}
             placeholder="Describe the role, e.g., view logs-* in Discover"
-            disabled={isLoading}
+            disabled={isLoading || isLoginLoading}
             append={
               <EuiButtonIcon
                 aria-label={'Generate role'}
@@ -158,11 +159,17 @@ export const CreateRoleModal = ({ onClose }: CreateRoleModalProps) => {
       <EuiModalFooter>
         <EuiFlexGroup>
           <EuiFlexItem>
-            <EuiButtonEmpty onClick={() => onClose()}>Cancel</EuiButtonEmpty>
+            <EuiButtonEmpty isDisabled={isLoading || isLoginLoading} onClick={() => onClose()}>
+              Cancel
+            </EuiButtonEmpty>
           </EuiFlexItem>
           <EuiFlexItem>
-            <EuiButton isDisabled={isLoading || !roleDefinition.valid} onClick={() => saveRole()}>
-              Save
+            <EuiButton
+              isDisabled={isLoading || !roleDefinition.valid || isLoginLoading}
+              isLoading={isLoginLoading}
+              onClick={() => saveRole()}
+            >
+              Save & Log in
             </EuiButton>
           </EuiFlexItem>
         </EuiFlexGroup>

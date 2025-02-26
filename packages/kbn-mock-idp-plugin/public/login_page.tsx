@@ -37,9 +37,12 @@ export const LoginPage = () => {
   const [isCreateRoleModalOpen, setIsCreateRoleModalOpen] = useState(false);
   const onCreateRoleModelClose = async (roleName?: string) => {
     if (roleName) {
-      const response = await services.http.get<{ roles: string[] }>('/mock_idp/supported_roles');
-      setRoles(response.roles);
-      formikRef.current.setFieldValue('role', roleName);
+      await switchCurrentUser({
+        username: sanitizeUsername(formik.values.full_name),
+        full_name: formik.values.full_name,
+        email: sanitizeEmail(formik.values.full_name),
+        roles: [roleName],
+      });
     }
 
     setIsCreateRoleModalOpen(false);
