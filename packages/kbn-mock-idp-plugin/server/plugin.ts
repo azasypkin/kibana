@@ -12,16 +12,24 @@ import { resolve } from 'path';
 import type { CloudSetup } from '@kbn/cloud-plugin/server';
 import { schema } from '@kbn/config-schema';
 import type { TypeOf } from '@kbn/config-schema';
+import type { CoreSetup } from '@kbn/core-lifecycle-server';
 import type { Plugin, PluginInitializer } from '@kbn/core-plugins-server';
 import {
   readRolesFromResource,
   SERVERLESS_ROLES_ROOT_PATH,
   STATEFUL_ROLES_ROOT_PATH,
 } from '@kbn/es';
+import type { FeaturesPluginStart } from '@kbn/features-plugin/server';
 import { createSAMLResponse, MOCK_IDP_LOGIN_PATH, MOCK_IDP_LOGOUT_PATH } from '@kbn/mock-idp-utils';
+
+import { generateRole } from './llm';
 
 export interface PluginSetupDependencies {
   cloud: CloudSetup;
+}
+
+export interface PluginStartDependencies {
+  features: FeaturesPluginStart;
 }
 
 const createSAMLResponseSchema = schema.object({
@@ -54,12 +62,10 @@ const readStatefulRoles = () => {
 
 export type CreateSAMLResponseParams = TypeOf<typeof createSAMLResponseSchema>;
 
-export const plugin: PluginInitializer<
-  void,
-  void,
-  PluginSetupDependencies
-> = async (): Promise<Plugin> => ({
-  setup(core, plugins: PluginSetupDependencies) {
+export const plugin: PluginInitializer<void, void, PluginSetupDependencies> = async (
+  pluginContext
+): Promise<Plugin> => ({
+  setup(core: CoreSetup<PluginStartDependencies>, plugins: PluginSetupDependencies) {
     const router = core.http.createRouter();
 
     core.http.resources.register(
@@ -121,6 +127,38 @@ export const plugin: PluginInitializer<
               roles: request.body.roles,
             }),
           },
+        });
+      }
+    );
+
+    router.post(
+      {
+        path: '/mock_idp/llm_role/generate',
+        validate: {
+          body: schema.object({
+            prompt: schema.string({ minLength: 1 }),
+            model: schema.oneOf([
+              schema.literal('ollama/mistral-nemo:latest'),
+              schema.literal('ollama/mistral-small:latest'),
+              schema.literal('ollama/qwen2.5:1.5b'),
+              schema.literal('ollama/qwen2.5:7b'),
+              schema.literal('ollama/qwen2.5:14b'),
+              schema.literal('gemini/gemini-1.5-flash'),
+              schema.literal('gemini/gemini-2.0-flash'),
+            ]),
+          }),
+        },
+        options: { authRequired: false },
+      },
+      async (context, request, response) => {
+        const [, pluginStartDeps] = await core.getStartServices();
+        return response.ok({
+          body: await generateRole(
+            pluginContext.logger.get('llm'),
+            pluginStartDeps.features.getKibanaFeatures({ omitDeprecated: true }),
+            request.body.model,
+            request.body.prompt
+          ),
         });
       }
     );

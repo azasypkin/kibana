@@ -1864,6 +1864,7 @@
     "ts-morph": "^15.1.0",
     "tsd": "^0.31.1",
     "typescript": "5.1.6",
+    "unique-names-generator": "^4.7.1",
     "val-loader": "^6.0.0",
     "vinyl-fs": "^4.0.0",
     "watchpack": "^1.6.0",

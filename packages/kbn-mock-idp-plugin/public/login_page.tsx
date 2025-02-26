@@ -11,6 +11,7 @@ import type { EuiComboBoxOptionOption } from '@elastic/eui';
 import {
   EuiButton,
   EuiButtonEmpty,
+  EuiButtonIcon,
   EuiComboBox,
   EuiEmptyPrompt,
   EuiFormRow,
@@ -25,6 +26,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { CoreStart } from '@kbn/core-lifecycle-browser';
 import { useKibana } from '@kbn/kibana-react-plugin/public';
 
+import { CreateRoleModal } from './create_role_modal';
 import { useAuthenticator } from './role_switcher';
 
 export const LoginPage = () => {
@@ -32,6 +34,16 @@ export const LoginPage = () => {
   const [roles, setRoles] = useState<string[]>([]);
   const isRolesDefined = () => roles.length > 0;
 
+  const [isCreateRoleModalOpen, setIsCreateRoleModalOpen] = useState(false);
+  const onCreateRoleModelClose = async (roleName?: string) => {
+    if (roleName) {
+      const response = await services.http.get<{ roles: string[] }>('/mock_idp/supported_roles');
+      setRoles(response.roles);
+      formikRef.current.setFieldValue('role', roleName);
+    }
+
+    setIsCreateRoleModalOpen(false);
+  };
   const [, switchCurrentUser] = useAuthenticator(true);
   const formik = useFormik({
     initialValues: {
@@ -109,7 +121,17 @@ export const LoginPage = () => {
 
                   <EuiFormRow error={formik.errors.role} isInvalid={!!formik.errors.role}>
                     <Field
-                      as={EuiComboBox}
+                      as={(props) => (
+                        <EuiComboBox
+                          {...props}
+                          append={
+                            <EuiButtonIcon
+                              iconType="newChat"
+                              onClick={() => setIsCreateRoleModalOpen((toggle) => !toggle)}
+                            />
+                          }
+                        />
+                      )}
                       isLoading={!isRolesDefined()}
                       disabled={!isRolesDefined()}
                       name="role"
@@ -156,6 +178,7 @@ export const LoginPage = () => {
               ]}
             />
           </Form>
+          {isCreateRoleModalOpen ? <CreateRoleModal onClose={onCreateRoleModelClose} /> : null}
         </EuiPageTemplate.Section>
       </EuiPageTemplate>
     </FormikProvider>

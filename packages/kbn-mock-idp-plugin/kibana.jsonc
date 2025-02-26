@@ -9,7 +9,8 @@
     "browser": true,
     "enabledOnAnonymousPages": true,
     "requiredPlugins": [
-      "cloud"
+      "cloud",
+      "features"
     ],
     "requiredBundles": [
       "kibanaReact"
