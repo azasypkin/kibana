@@ -79,8 +79,9 @@ NO other text MUST be included (no thinking, no reasoning, no explanations, no c
         "properties": {
           "id": { "enum": ${JSON.stringify(features.map((f) => f.id).concat(['base']))} },
           "access": { "enum": ["all", "read"] }
+          "space": { "type": "string" }
         },
-        "required": ["id", "access"]
+        "required": ["id", "access", "space"]
       }
     },
     "elasticsearch": {
@@ -107,13 +108,24 @@ ONLY from this list.
 \`\`\`json
 [
 ${features
-  .map(({ id, name, app }) => {
+  .flatMap(({ id, name, app, privileges }) => {
+    if (!privileges) {
+      return [];
+    }
+
     const apps = app.filter((a) => a !== 'kibana');
-    return JSON.stringify({
-      id,
-      name,
-      description: apps.length > 0 ? `Grants access to the following apps: ${apps.join(', ')}` : '',
-    });
+    return [
+      JSON.stringify({
+        id,
+        name,
+        supportedAccess: [
+          ...(!privileges.all.disabled ? ['all'] : []),
+          ...(!privileges.read.disabled ? ['read'] : []),
+        ],
+        description:
+          apps.length > 0 ? `Grants access to the following apps: ${apps.join(', ')}` : '',
+      }),
+    ];
   })
   .join(',\n')}
 ]
@@ -124,7 +136,15 @@ feature ID (that's a special keyword). Don't make new feature IDs, if you cannot
 ask for clarification.
 
 The "access" property defines a level of access, it can either be "all" (manage, write, all - all are aliases for "all",
-that's the highest level of access to a certain feature) or "read" (read, view - all are aliases for "read").
+that's the highest level of access to a certain feature) or "read" (read, view - all are aliases for "read"). The "access"
+should be ONLY set to a value that's supported by the specified feature as declared in "supportedAccess" feature property.
+If "supportedAccess" has ONLY "all" you should use "all" for "access", if "read", you should use "read" for "access",
+no matter what user requested.
+
+Access to the feature can usually be granted within a specific “space” (should always be in lowercase and whitespaces
+should be replaced with _). If the user doesn’t mention a space or wants access in all spaces, you should set "space"
+to "*" (a special keyword). When use mentions "default" space, use "default" as "space" value. The space is purely a
+Kibana concept and is not related to Elasticsearch.
 
 ## The "elasticsearch" role portion
 
@@ -242,33 +262,48 @@ function constructRole(
     });
   }
 
-  let kibana = null;
+  const kibana = [];
   if (llmResponse.kibana.length > 0) {
-    const basePrivilege = llmResponse.kibana.find((k) => k.id === 'base');
+    const privilegesBySpace = llmResponse.kibana.reduce((acc, k) => {
+      const privileges = acc.get(k.space) || [];
+      privileges.push(k);
+      acc.set(k.space, privileges);
+      return acc;
+    }, new Map());
 
-    const featurePrivileges = [];
-    if (!basePrivilege) {
-      for (const k of llmResponse.kibana) {
-        const validFeature = features.find((f) => f.id === k.id);
-        if (!validFeature) {
-          logger.error(`Failed to construct role: feature with ID "${k.id}" is not supported.`);
-          throw new Error(`Feature with ID "${k.id}" is not supported.`);
+    for (const [space, privileges] of privilegesBySpace) {
+      const basePrivilege = privileges.find((k) => k.id === 'base');
+
+      const featurePrivileges = [];
+      if (!basePrivilege) {
+        for (const k of privileges) {
+          const validFeature = features.find((f) => f.id === k.id);
+          if (!validFeature) {
+            logger.error(`Failed to construct role: feature with ID "${k.id}" is not supported.`);
+            throw new Error(`Feature with ID "${k.id}" is not supported.`);
+          }
+
+          const access = validFeature.privileges.all.disabled
+            ? 'read'
+            : validFeature.privileges.read.disabled
+            ? 'all'
+            : k.access;
+          featurePrivileges.push([k.id, [access]]);
         }
-        featurePrivileges.push([k.id, [k.access]]);
       }
-    }
 
-    kibana = {
-      spaces: ['*'],
-      base: basePrivilege ? [basePrivilege.access] : [],
-      feature: featurePrivileges.length > 0 ? Object.fromEntries(featurePrivileges) : {},
-    };
+      kibana.push({
+        spaces: [space.toLowerCase().trim().replaceAll(' ', '_')],
+        base: basePrivilege ? [basePrivilege.access] : [],
+        feature: featurePrivileges.length > 0 ? Object.fromEntries(featurePrivileges) : {},
+      });
+    }
   }
 
   return {
     name: roleName,
     description: `${roleName}: ${userPrompt}`,
-    kibana: kibana ? [kibana] : [],
+    kibana,
     elasticsearch: {
       cluster: [],
       indices,
