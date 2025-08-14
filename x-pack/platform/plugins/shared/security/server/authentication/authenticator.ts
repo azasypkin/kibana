@@ -89,7 +89,7 @@ export interface AuthenticatorOptions {
   featureUsageService: SecurityFeatureUsageServiceStart;
   userProfileService: UserProfileServiceStartInternal;
   getCurrentUser: (request: KibanaRequest) => AuthenticatedUser | null;
-  config: Pick<ConfigType, 'authc' | 'accessAgreement'>;
+  config: Pick<ConfigType, 'authc' | 'accessAgreement' | 'uiam'>;
   basePath: IBasePath;
   license: SecurityLicense;
   loggers: LoggerFactory;
@@ -239,6 +239,7 @@ export class Authenticator {
       }),
       getServerBaseURL: this.options.getServerBaseURL,
       isElasticCloudDeployment: this.options.isElasticCloudDeployment,
+      uiamConfig: this.options.config.uiam?.enabled ? this.options.config.uiam : undefined,
     };
 
     this.providers = new Map(

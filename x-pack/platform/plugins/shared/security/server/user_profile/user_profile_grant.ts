@@ -25,4 +25,5 @@ export interface PasswordUserProfileGrant {
 export interface AccessTokenUserProfileGrant {
   readonly type: 'accessToken';
   readonly accessToken: string;
+  readonly sharedSecret?: string;
 }

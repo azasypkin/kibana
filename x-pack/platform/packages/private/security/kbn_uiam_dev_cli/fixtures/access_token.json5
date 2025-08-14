@@ -1,0 +1,46 @@
+// Signing key: vLJb9lkGSmVVPsvYdgoRCcsGDzeaFxpBV10Pr3SPEYU=
+// Encoded token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5ODc2NTQzMjEiLCJuYmYiOjE3NTUxNzEzMDgsInJhcyI6eyJwbGF0Zm9ybSI6W3sicm9sZV9pZCI6ImVzcy1kZWZhdWx0LXBsYXRmb3JtIn1dLCJvcmdhbml6YXRpb24iOlt7InJvbGVfaWQiOiJlc3MtZGVmYXVsdC1vcmdhbml6YXRpb24iLCJvcmdhbml6YXRpb25faWQiOiIxMjM0NTY3ODkwIn0seyJyb2xlX2lkIjoib3JnYW5pemF0aW9uLWFkbWluIiwib3JnYW5pemF0aW9uX2lkIjoiMTIzNDU2Nzg5MCJ9XSwidXNlciI6W3sicm9sZV9pZCI6ImVzcy1kZWZhdWx0LXVzZXIiLCJzZWN1cml0eV9yZWFsbSI6eyJyZWFsbSI6InBvc3RncmVzIn0sInVzZXJfaWQiOiI5ODc2NTQzMjEifV19LCJpc3MiOiJlbGFzdGljLWNsb3VkIiwidHlwIjoiYWNjZXNzLXRva2VuIiwib2lkIjoiMTIzNDU2Nzg5MCIsImV4cCI6MjA3MDcxMDIxNSwic2p0IjoidXNlciIsImlhdCI6MTc1NTE3MTMwOCwianRpIjoiNDg5YzZjOTRmMzBlNGRiYjkzNDY4ZjhkYTQyOTExYzQiLCJlbWFpbCI6ImFsZmEuYmV0YUBlbGFzdGljLmNvIn0.HIW_dEiNBjaSB1lWwIfpovTxn0o725vnL4b_Y41yagU
+{
+  "header": {
+    "typ": "JWT",
+    "alg": "HS256"
+  },
+  "payload": {
+    "sub": "987654321",
+    "nbf": 1755171308,
+    "ras": {
+      "platform": [
+        {
+          "role_id": "ess-default-platform"
+        }
+      ],
+      "organization": [
+        {
+          "role_id": "ess-default-organization",
+          "organization_id": "1234567890"
+        },
+        {
+          "role_id": "organization-admin",
+          "organization_id": "1234567890"
+        }
+      ],
+      "user": [
+        {
+          "role_id": "ess-default-user",
+          "security_realm": {
+            "realm": "postgres"
+          },
+          "user_id": "987654321"
+        }
+      ]
+    },
+    "iss": "elastic-cloud",
+    "typ": "access-token",
+    "oid": "1234567890",
+    "exp": 2070710215,
+    "sjt": "user",
+    "iat": 1755171308,
+    "jti": "489c6c94f30e4dbb93468f8da42911c4",
+    "email": "alfa.beta@elastic.co"
+  }
+}

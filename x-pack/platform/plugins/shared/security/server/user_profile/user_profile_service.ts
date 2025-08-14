@@ -28,6 +28,7 @@ import type {
   UserProfileData,
   UserProfileWithSecurity,
 } from '../../common';
+import { ES_CLIENT_AUTHENTICATION_HEADER } from '../../common/constants';
 import type { AuthorizationServiceSetupInternal } from '../authorization';
 import { getDetailedErrorMessage, getErrorStatusCode } from '../errors';
 import { getPrintableSessionId, type Session } from '../session_management';
@@ -131,6 +132,11 @@ export class UserProfileService {
         ? { grant_type: 'password', username: grant.username, password: grant.password }
         : { grant_type: 'access_token', access_token: grant.accessToken };
 
+    const activateOptions =
+      grant.type === 'accessToken' && grant.sharedSecret
+        ? { headers: { [ES_CLIENT_AUTHENTICATION_HEADER]: grant.sharedSecret } }
+        : undefined;
+
     // Profile activation is a multistep process that might or might not cause profile document to be created or
     // updated. If Elasticsearch needs to handle multiple profile activation requests for the same user in parallel
     // it can hit document version conflicts and fail (409 status code). In this case it's safe to retry activation
@@ -141,7 +147,8 @@ export class UserProfileService {
     do {
       try {
         const response = await clusterClient.asInternalUser.security.activateUserProfile(
-          activateRequest
+          activateRequest,
+          activateOptions
         );
 
         this.logger.debug(`Successfully activated profile for "${response.user.username}".`);

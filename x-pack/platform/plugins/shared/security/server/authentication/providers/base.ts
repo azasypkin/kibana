@@ -16,6 +16,7 @@ import { deepFreeze } from '@kbn/std';
 import type { PublicMethodsOf } from '@kbn/utility-types';
 
 import type { AuthenticatedUser } from '../../../common';
+import type { UiamConfigType } from '../../config';
 import type { AuthenticationInfo } from '../../elasticsearch';
 import { AuthenticationResult } from '../authentication_result';
 import type { DeauthenticationResult } from '../deauthentication_result';
@@ -38,6 +39,7 @@ export interface AuthenticationProviderOptions {
   urls: {
     loggedOut: (request: KibanaRequest) => string;
   };
+  uiamConfig?: UiamConfigType;
   isElasticCloudDeployment: () => boolean;
 }
 

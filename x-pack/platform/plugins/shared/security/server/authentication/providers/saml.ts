@@ -15,6 +15,7 @@ import { BaseAuthenticationProvider } from './base';
 import {
   AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER,
   AUTH_URL_HASH_QUERY_STRING_PARAMETER,
+  ES_CLIENT_AUTHENTICATION_HEADER,
   NEXT_URL_QUERY_STRING_PARAMETER,
 } from '../../../common/constants';
 import type { AuthenticationInfo } from '../../elasticsearch';
@@ -449,7 +450,14 @@ export class SAMLAuthenticationProvider extends BaseAuthenticationProvider {
         `${this.options.basePath.get(request)}/`,
       {
         user: this.authenticationInfoToAuthenticatedUser(result.authentication),
-        userProfileGrant: { type: 'accessToken', accessToken: result.access_token },
+        // TODO: Temporarily disable profile activation for UIAM users (ES doesn't support it yet).
+        userProfileGrant: this.options.uiamConfig?.sharedSecret
+          ? undefined
+          : {
+              type: 'accessToken',
+              accessToken: result.access_token,
+              sharedSecret: this.options.uiamConfig?.sharedSecret,
+            },
         state: {
           accessToken: result.access_token,
           refreshToken: result.refresh_token,
@@ -566,12 +574,14 @@ export class SAMLAuthenticationProvider extends BaseAuthenticationProvider {
       return AuthenticationResult.notHandled();
     }
 
-    try {
-      const authHeaders = {
-        authorization: new HTTPAuthorizationHeader('Bearer', accessToken).toString(),
-      };
-      const user = await this.getUser(request, authHeaders);
+    const authorization = new HTTPAuthorizationHeader('Bearer', accessToken).toString();
+    const sharedSecret = this.options.uiamConfig?.sharedSecret;
+    const authHeaders: Record<string, string> = sharedSecret
+      ? { authorization, [ES_CLIENT_AUTHENTICATION_HEADER]: sharedSecret }
+      : { authorization };
 
+    try {
+      const user = await this.getUser(request, authHeaders);
       this.logger.debug('Request has been authenticated via state.');
       return AuthenticationResult.succeeded(user, { authHeaders });
     } catch (err) {
