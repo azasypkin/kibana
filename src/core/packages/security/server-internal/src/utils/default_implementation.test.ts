@@ -47,4 +47,8 @@ describe('getDefaultSecurityImplementation', () => {
       expect(logger.log({ message: 'no request' })).toBeUndefined();
     });
   });
+
+  it('uiam returns null', async () => {
+    expect(implementation.uiam).toBeNull();
+  });
 });

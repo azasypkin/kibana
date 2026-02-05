@@ -332,6 +332,7 @@ export class SecurityPlugin
     core.security.registerSecurityDelegate(
       buildSecurityApi({
         getAuthc: this.getAuthentication.bind(this),
+        getUiam: () => this.uiamService,
         audit: this.auditSetup,
         config,
       })

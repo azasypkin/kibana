@@ -7,6 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import type { CoreUiamService } from './uiam';
 import type { CoreFipsService } from './fips';
 import type { CoreAuthenticationService } from './authc';
 import type { CoreSecurityDelegateContract } from './api_provider';
@@ -44,4 +45,8 @@ export interface SecurityServiceStart {
    * The {@link CoreAuditService | audit service}
    */
   audit: CoreAuditService;
+  /**
+   * The {@link CoreUiamService | UIAM service}
+   */
+  uiam: CoreUiamService | null;
 }

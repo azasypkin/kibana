@@ -36,11 +36,17 @@ describe('convertSecurityApi', () => {
         asScoped: jest.fn().mockReturnValue(createAuditLoggerMock.create()),
         withoutRequest: createAuditLoggerMock.create(),
       },
+      uiam: {
+        getSecondaryClientAuthenticationHeader: jest.fn(),
+      },
     };
     const output = convertSecurityApi(source);
     expect(output.authc.getCurrentUser).toBe(source.authc.getCurrentUser);
     expect(output.authc.apiKeys).toBe(source.authc.apiKeys);
     expect(output.audit.asScoped).toBe(source.audit.asScoped);
     expect(output.audit.withoutRequest).toBe(source.audit.withoutRequest);
+    expect(output.uiam?.getSecondaryClientAuthenticationHeader).toBe(
+      source.uiam?.getSecondaryClientAuthenticationHeader
+    );
   });
 });

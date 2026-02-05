@@ -17,7 +17,7 @@ import { SAMLAuthenticationProvider, SAMLLogin } from './saml';
 import {
   AUTH_PROVIDER_HINT_QUERY_STRING_PARAMETER,
   AUTH_URL_HASH_QUERY_STRING_PARAMETER,
-  ES_CLIENT_AUTHENTICATION_HEADER,
+  CLIENT_AUTHENTICATION_HEADER,
 } from '../../../common/constants';
 import { mockAuthenticatedUser } from '../../../common/model/authenticated_user.mock';
 import { InvalidGrantError } from '../../errors';
@@ -1824,16 +1824,16 @@ describe('SAMLAuthenticationProvider', () => {
 
         await expect(provider.authenticate(request, state)).resolves.toEqual(
           AuthenticationResult.succeeded(mockUser, {
-            authHeaders: { authorization, [ES_CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret' },
+            authHeaders: { authorization, [CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret' },
           })
         );
 
         expect(mockOptions.client.asScoped).toHaveBeenCalledWith({
-          headers: { authorization, [ES_CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret' },
+          headers: { authorization, [CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret' },
         });
 
         expect(request.headers).not.toHaveProperty('authorization');
-        expect(request.headers).not.toHaveProperty(ES_CLIENT_AUTHENTICATION_HEADER);
+        expect(request.headers).not.toHaveProperty(CLIENT_AUTHENTICATION_HEADER);
       });
     });
 
@@ -1941,7 +1941,7 @@ describe('SAMLAuthenticationProvider', () => {
         expect(mockOptions.uiam?.refreshSessionTokens).toHaveBeenCalledWith(state.refreshToken);
 
         expect(request.headers).not.toHaveProperty('authorization');
-        expect(request.headers).not.toHaveProperty(ES_CLIENT_AUTHENTICATION_HEADER);
+        expect(request.headers).not.toHaveProperty(CLIENT_AUTHENTICATION_HEADER);
       });
 
       it('fails if token from the state is expired, refresh attempt failed, and displays error from UIAM', async () => {
@@ -1968,11 +1968,11 @@ describe('SAMLAuthenticationProvider', () => {
         expect(mockOptions.uiam?.refreshSessionTokens).toHaveBeenCalledWith(state.refreshToken);
 
         expect(mockOptions.client.asScoped).toHaveBeenCalledWith({
-          headers: { authorization, [ES_CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret' },
+          headers: { authorization, [CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret' },
         });
 
         expect(request.headers).not.toHaveProperty('authorization');
-        expect(request.headers).not.toHaveProperty(ES_CLIENT_AUTHENTICATION_HEADER);
+        expect(request.headers).not.toHaveProperty(CLIENT_AUTHENTICATION_HEADER);
       });
     });
   });
@@ -2057,7 +2057,7 @@ describe('SAMLAuthenticationProvider', () => {
         expect(mockOptions.client.asScoped).toHaveBeenCalledWith({ headers: { authorization } });
 
         expect(request.headers).not.toHaveProperty('authorization');
-        expect(request.headers).not.toHaveProperty(ES_CLIENT_AUTHENTICATION_HEADER);
+        expect(request.headers).not.toHaveProperty(CLIENT_AUTHENTICATION_HEADER);
       });
     });
 
@@ -2162,7 +2162,7 @@ describe('SAMLAuthenticationProvider', () => {
         expect(mockOptions.tokens.refresh).toHaveBeenCalledWith(state.refreshToken);
 
         expect(request.headers).not.toHaveProperty('authorization');
-        expect(request.headers).not.toHaveProperty(ES_CLIENT_AUTHENTICATION_HEADER);
+        expect(request.headers).not.toHaveProperty(CLIENT_AUTHENTICATION_HEADER);
       });
 
       it('fails if token from the state is expired, refresh attempt failed, and displays error from UIAM', async () => {
@@ -2193,7 +2193,7 @@ describe('SAMLAuthenticationProvider', () => {
         expect(mockOptions.client.asScoped).toHaveBeenCalledWith({ headers: { authorization } });
 
         expect(request.headers).not.toHaveProperty('authorization');
-        expect(request.headers).not.toHaveProperty(ES_CLIENT_AUTHENTICATION_HEADER);
+        expect(request.headers).not.toHaveProperty(CLIENT_AUTHENTICATION_HEADER);
       });
     });
   });

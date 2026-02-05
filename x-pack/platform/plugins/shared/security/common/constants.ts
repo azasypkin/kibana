@@ -60,7 +60,13 @@ export const SESSION_ERROR_REASON_HEADER = 'kbn-session-error-reason';
  * The HTTP header that's supposed to carry the client ES authentication information when needed (e.g.,
  * UIAM shared secret).
  */
-export const ES_CLIENT_AUTHENTICATION_HEADER = 'x-client-authentication';
+export const CLIENT_AUTHENTICATION_HEADER = 'x-client-authentication';
+
+/**
+ * The HTTP header that's supposed to carry the client ES authentication information when needed (e.g.,
+ * UIAM shared secret) for the secondary credentials.
+ */
+export const SECONDARY_CLIENT_AUTHENTICATION_HEADER = 'es-secondary-x-client-authentication';
 
 /**
  * Matches valid usernames and role names.

@@ -17,7 +17,7 @@ import {
 } from '@kbn/mock-idp-utils';
 import { apiTest, expect } from '@kbn/scout';
 
-import { ES_CLIENT_AUTHENTICATION_HEADER } from '../../../../common/constants';
+import { CLIENT_AUTHENTICATION_HEADER } from '../../../../common/constants';
 import { COMMON_HEADERS } from '../fixtures/constants';
 
 // These tests cannot be run on MKI because we cannot obtain the raw UIAM tokens required to verify their invalidation.
@@ -118,7 +118,7 @@ const checkUiamAccessToken = async (accessToken: string) =>
     headers: {
       'User-Agent': 'Kibana-Scout/1.0 (IntegrationTest; Security; build/2025.12.30)',
       'Content-Type': 'application/json',
-      [ES_CLIENT_AUTHENTICATION_HEADER]: MOCK_IDP_UIAM_SHARED_SECRET,
+      [CLIENT_AUTHENTICATION_HEADER]: MOCK_IDP_UIAM_SHARED_SECRET,
       Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({}),
@@ -130,7 +130,7 @@ const checkUiamRefreshToken = async (refreshToken: string) =>
     headers: {
       'User-Agent': 'Kibana-Scout/1.0 (IntegrationTest; Security; build/2025.12.30)',
       'Content-Type': 'application/json',
-      [ES_CLIENT_AUTHENTICATION_HEADER]: MOCK_IDP_UIAM_SHARED_SECRET,
+      [CLIENT_AUTHENTICATION_HEADER]: MOCK_IDP_UIAM_SHARED_SECRET,
     },
     body: JSON.stringify({ refresh_token: refreshToken }),
   });

@@ -15,14 +15,17 @@ import type { CoreUserProfileDelegateContract } from '@kbn/core-user-profile-ser
 import type { AuditServiceSetup } from '@kbn/security-plugin-types-server';
 
 import type { InternalAuthenticationServiceStart } from './authentication';
+import type { UiamServicePublic } from './uiam';
 import type { UserProfileServiceStartInternal } from './user_profile';
 
 export const buildSecurityApi = ({
   getAuthc,
+  getUiam,
   audit,
   config,
 }: {
   getAuthc: () => InternalAuthenticationServiceStart;
+  getUiam: () => UiamServicePublic | undefined;
   audit: AuditServiceSetup;
   config: { uiam?: { enabled: boolean } };
 }): CoreSecurityDelegateContract => {
@@ -65,6 +68,12 @@ export const buildSecurityApi = ({
         includeSavedObjectNames: audit.withoutRequest.includeSavedObjectNames,
       },
     },
+    uiam: config.uiam?.enabled
+      ? {
+          getSecondaryClientAuthenticationHeader: () =>
+            getUiam()!.getSecondaryClientAuthenticationHeader(),
+        }
+      : null,
   };
 };
 

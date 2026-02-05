@@ -42,6 +42,9 @@ const createStartMock = (): SecurityStartMock => {
       apiKeys: apiKeysMock.create(),
     }),
     audit: auditServiceMock.create(),
+    uiam: lazyObject({
+      getSecondaryClientAuthenticationHeader: jest.fn().mockReturnValue({}),
+    }),
   });
 
   return mock;
@@ -69,6 +72,9 @@ const createInternalStartMock = (): InternalSecurityStartMock => {
       apiKeys: apiKeysMock.create(),
     }),
     audit: auditServiceMock.create(),
+    uiam: lazyObject({
+      getSecondaryClientAuthenticationHeader: jest.fn().mockReturnValue({}),
+    }),
   });
 
   return mock;

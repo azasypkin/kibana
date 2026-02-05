@@ -22,6 +22,7 @@ import type {
   ICustomClusterClient,
 } from '@kbn/core-elasticsearch-server';
 import type { ElasticsearchClientConfig } from '@kbn/core-elasticsearch-server';
+import { MOCK_IDP_UIAM_SHARED_SECRET } from '@kbn/mock-idp-utils';
 import { configureClient } from './configure_client';
 import { ScopedClusterClient } from './scoped_cluster_client';
 import { getDefaultHeaders, AUTHORIZATION_HEADER, ES_SECONDARY_AUTH_HEADER } from './headers';
@@ -182,6 +183,7 @@ export class ClusterClient implements ICustomClusterClient {
       ...getDefaultHeaders(this.kibanaVersion),
       ...this.config.customHeaders,
       [ES_SECONDARY_AUTH_HEADER]: authorizationHeader[1],
+      'es-secondary-x-client-authentication': MOCK_IDP_UIAM_SHARED_SECRET,
     };
   }
 }

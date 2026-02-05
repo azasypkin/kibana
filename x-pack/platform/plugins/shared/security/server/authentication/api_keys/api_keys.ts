@@ -9,6 +9,7 @@
 
 import type { BuildFlavor } from '@kbn/config';
 import type { IClusterClient, KibanaRequest, Logger } from '@kbn/core/server';
+import { HTTPAuthorizationHeader, isUiamCredential } from '@kbn/core-security-server';
 import type { KibanaFeature } from '@kbn/features-plugin/server';
 import type {
   ClientAuthentication,
@@ -28,11 +29,8 @@ import { getFakeKibanaRequest } from './fake_kibana_request';
 import type { SecurityLicense } from '../../../common';
 import { transformPrivilegesToElasticsearchPrivileges, validateKibanaPrivileges } from '../../lib';
 import type { UpdateAPIKeyParams, UpdateAPIKeyResult } from '../../routes/api_keys';
-import { isUiamCredential, type UiamServicePublic } from '../../uiam';
-import {
-  BasicHTTPAuthorizationHeaderCredentials,
-  HTTPAuthorizationHeader,
-} from '../http_authentication';
+import { type UiamServicePublic } from '../../uiam';
+import { BasicHTTPAuthorizationHeaderCredentials } from '../http_authentication';
 
 export type { UpdateAPIKeyParams, UpdateAPIKeyResult };
 
@@ -506,7 +504,7 @@ export class APIKeys implements NativeAPIKeysType {
 
     // For UIAM credentials, we need to add the UIAM authentication header to the scoped client.
     return this.clusterClient.asScoped({
-      headers: { ...request.headers, ...this.uiam.getEsClientAuthenticationHeader() },
+      headers: { ...request.headers, ...this.uiam.getClientAuthenticationHeader() },
     });
   }
 }

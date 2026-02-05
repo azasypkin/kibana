@@ -8,6 +8,8 @@
  */
 
 // Mocking the module to avoid waiting for a valid ES connection during these unit tests
+import { securityServiceMock } from '@kbn/core-security-server-mocks';
+
 jest.mock('./is_valid_connection', () => ({
   isValidConnection: jest.fn(),
 }));
@@ -36,7 +38,7 @@ import { executionContextServiceMock } from '@kbn/core-execution-context-server-
 import { httpServiceMock } from '@kbn/core-http-server-mocks';
 import { elasticsearchClientMock } from '@kbn/core-elasticsearch-client-server-mocks';
 import { configSchema, ElasticsearchConfig } from './elasticsearch_config';
-import type { SetupDeps } from './elasticsearch_service';
+import type { SetupDeps, StartDeps } from './elasticsearch_service';
 import { ElasticsearchService } from './elasticsearch_service';
 import { duration } from 'moment';
 import { isValidConnection } from './is_valid_connection';
@@ -59,6 +61,7 @@ let coreContext: CoreContext;
 let mockClusterClientInstance: ReturnType<typeof elasticsearchClientMock.createCustomClusterClient>;
 let mockConfig$: BehaviorSubject<any>;
 let setupDeps: SetupDeps;
+let startDeps: StartDeps;
 const nodesInfoResponse = {
   cluster_name: 'cluster-name',
   nodes: {},
@@ -69,6 +72,10 @@ beforeEach(() => {
     analytics: analyticsServiceMock.createAnalyticsServiceSetup(),
     http: httpServiceMock.createInternalSetupContract(),
     executionContext: executionContextServiceMock.createInternalSetupContract(),
+  };
+
+  startDeps = {
+    security: securityServiceMock.createInternalStart(),
   };
 
   env = Env.createDefault(REPO_ROOT, getEnvOptions());
@@ -266,14 +273,14 @@ describe('#setup', () => {
 
 describe('#start', () => {
   it('throws if called before `setup`', async () => {
-    await expect(() => elasticsearchService.start()).rejects.toMatchInlineSnapshot(
+    await expect(() => elasticsearchService.start(startDeps)).rejects.toMatchInlineSnapshot(
       `[Error: ElasticsearchService needs to be setup before calling start]`
     );
   });
 
   it('returns elasticsearch client as a part of the contract', async () => {
     await elasticsearchService.setup(setupDeps);
-    const startContract = await elasticsearchService.start();
+    const startContract = await elasticsearchService.start(startDeps);
     const client = startContract.client;
 
     expect(client.asInternalUser).toBe(mockClusterClientInstance.asInternalUser);
@@ -293,7 +300,7 @@ describe('#start', () => {
 
     await elasticsearchService.setup(setupDeps);
     tick();
-    await elasticsearchService.start();
+    await elasticsearchService.start(startDeps);
     expect(loggingSystemMock.collect(coreContext.logger).error).toEqual([]);
     observable$.next({
       ...defaultMessage,
@@ -311,7 +318,7 @@ describe('#start', () => {
     });
 
     await elasticsearchService.setup(setupDeps);
-    await elasticsearchService.start();
+    await elasticsearchService.start(startDeps);
 
     expect(isValidConnectionMock).toHaveBeenCalledTimes(1);
 
@@ -330,7 +337,7 @@ describe('#start', () => {
     });
 
     await elasticsearchService.setup(setupDeps);
-    const startContract = await elasticsearchService.start();
+    const startContract = await elasticsearchService.start(startDeps);
 
     expect(isValidConnectionMock).toHaveBeenCalledTimes(1);
 
@@ -351,7 +358,7 @@ describe('#start', () => {
     it('should validate the connection by default', async () => {
       await elasticsearchService.setup(setupDeps);
       expect(isValidConnectionMock).not.toHaveBeenCalled();
-      await elasticsearchService.start();
+      await elasticsearchService.start(startDeps);
       expect(isValidConnectionMock).toHaveBeenCalledTimes(1);
     });
 
@@ -362,7 +369,7 @@ describe('#start', () => {
       });
       await elasticsearchService.setup(setupDeps);
       expect(isValidConnectionMock).not.toHaveBeenCalled();
-      await elasticsearchService.start();
+      await elasticsearchService.start(startDeps);
       expect(isValidConnectionMock).toHaveBeenCalledTimes(1);
     });
 
@@ -373,7 +380,7 @@ describe('#start', () => {
       });
       await elasticsearchService.setup(setupDeps);
       expect(isValidConnectionMock).not.toHaveBeenCalled();
-      await elasticsearchService.start();
+      await elasticsearchService.start(startDeps);
       expect(isValidConnectionMock).not.toHaveBeenCalled();
     });
   });
@@ -385,7 +392,7 @@ describe('#start', () => {
       await elasticsearchService.setup(setupDeps);
       expect(isScriptingEnabledMock).not.toHaveBeenCalled();
 
-      await expect(elasticsearchService.start()).resolves.toBeDefined();
+      await expect(elasticsearchService.start(startDeps)).resolves.toBeDefined();
       expect(isScriptingEnabledMock).toHaveBeenCalledTimes(1);
     });
 
@@ -394,7 +401,7 @@ describe('#start', () => {
 
       await elasticsearchService.setup(setupDeps);
 
-      await expect(elasticsearchService.start()).rejects.toThrowError(
+      await expect(elasticsearchService.start(startDeps)).rejects.toThrowError(
         'Inline scripting is disabled'
       );
     });
@@ -407,14 +414,14 @@ describe('#start', () => {
       });
 
       await elasticsearchService.setup(setupDeps);
-      await expect(elasticsearchService.start()).resolves.toBeDefined();
+      await expect(elasticsearchService.start(startDeps)).resolves.toBeDefined();
     });
   });
 
   describe('#createClient', () => {
     it('allows to specify config properties', async () => {
       await elasticsearchService.setup(setupDeps);
-      const startContract = await elasticsearchService.start();
+      const startContract = await elasticsearchService.start(startDeps);
 
       // reset all mocks called during setup phase
       MockClusterClient.mockClear();
@@ -431,7 +438,7 @@ describe('#start', () => {
     });
     it('creates a new client on each call', async () => {
       await elasticsearchService.setup(setupDeps);
-      const startContract = await elasticsearchService.start();
+      const startContract = await elasticsearchService.start(startDeps);
 
       // reset all mocks called during setup phase
       MockClusterClient.mockClear();
@@ -446,7 +453,7 @@ describe('#start', () => {
 
     it('falls back to elasticsearch default config values if property not specified', async () => {
       await elasticsearchService.setup(setupDeps);
-      const startContract = await elasticsearchService.start();
+      const startContract = await elasticsearchService.start(startDeps);
 
       // reset all mocks called during setup phase
       MockClusterClient.mockClear();
@@ -485,7 +492,7 @@ describe('#start', () => {
 describe('#stop', () => {
   it('stops both legacy and new clients', async () => {
     await elasticsearchService.setup(setupDeps);
-    await elasticsearchService.start();
+    await elasticsearchService.start(startDeps);
     await elasticsearchService.stop();
 
     expect(mockClusterClientInstance.close).toHaveBeenCalledTimes(1);

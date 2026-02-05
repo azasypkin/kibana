@@ -9,14 +9,14 @@ import fs from 'fs';
 import undici from 'undici';
 
 import { loggingSystemMock } from '@kbn/core/server/mocks';
+import { HTTPAuthorizationHeader } from '@kbn/core-security-server';
 
 import {
   type GrantUiamApiKeyRequestBody,
   type GrantUiamApiKeyResponse,
   UiamService,
 } from './uiam_service';
-import { ES_CLIENT_AUTHENTICATION_HEADER } from '../../common/constants';
-import { HTTPAuthorizationHeader } from '../authentication';
+import { CLIENT_AUTHENTICATION_HEADER } from '../../common/constants';
 import { ConfigSchema } from '../config';
 
 const AGENT_MOCK = { name: "I'm the danger. I'm the one who knocks." };
@@ -195,7 +195,7 @@ describe('UiamService', () => {
     it('includes shared secret as a separate header', () => {
       expect(uiamService.getAuthenticationHeaders('some-token')).toEqual({
         authorization: `Bearer some-token`,
-        [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+        [CLIENT_AUTHENTICATION_HEADER]: 'secret',
       });
     });
   });
@@ -209,10 +209,10 @@ describe('UiamService', () => {
     });
   });
 
-  describe('#getEsClientAuthenticationHeader', () => {
+  describe('#getClientAuthenticationHeader', () => {
     it('returns the ES client authentication header with shared secret', () => {
-      expect(uiamService.getEsClientAuthenticationHeader()).toEqual({
-        [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+      expect(uiamService.getClientAuthenticationHeader()).toEqual({
+        [CLIENT_AUTHENTICATION_HEADER]: 'secret',
       });
     });
   });
@@ -234,7 +234,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
         },
         body: JSON.stringify({ refresh_token: 'old-refresh' }),
         dispatcher: AGENT_MOCK,
@@ -258,7 +258,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
         },
         body: JSON.stringify({ refresh_token: 'old-refresh' }),
         dispatcher: AGENT_MOCK,
@@ -280,7 +280,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
           Authorization: 'Bearer old-token',
         },
         body: JSON.stringify({ tokens: ['old-token', 'old-refresh'] }),
@@ -305,7 +305,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
           Authorization: 'Bearer old-token',
         },
         body: JSON.stringify({ tokens: ['old-token', 'old-refresh'] }),
@@ -349,7 +349,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
           Authorization: 'Bearer access-token',
         },
         body: JSON.stringify(expectedRequestBody),
@@ -391,7 +391,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
           Authorization: 'ApiKey essu_api_key',
         },
         body: JSON.stringify(expectedRequestBody),
@@ -435,7 +435,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
           Authorization: 'Bearer access-token',
         },
         body: JSON.stringify(expectedRequestBody),
@@ -473,7 +473,7 @@ describe('UiamService', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+          [CLIENT_AUTHENTICATION_HEADER]: 'secret',
           Authorization: 'Bearer access-token',
         },
         body: JSON.stringify(expectedRequestBody),
@@ -558,7 +558,7 @@ describe('UiamService', () => {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+            [CLIENT_AUTHENTICATION_HEADER]: 'secret',
             Authorization: 'ApiKey access-token',
           },
           dispatcher: AGENT_MOCK,
@@ -585,7 +585,7 @@ describe('UiamService', () => {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            [ES_CLIENT_AUTHENTICATION_HEADER]: 'secret',
+            [CLIENT_AUTHENTICATION_HEADER]: 'secret',
             Authorization: 'ApiKey access-token',
           },
           dispatcher: AGENT_MOCK,

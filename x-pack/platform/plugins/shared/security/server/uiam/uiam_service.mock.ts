@@ -6,17 +6,17 @@
  */
 
 import type { UiamServicePublic } from './uiam_service';
-import { ES_CLIENT_AUTHENTICATION_HEADER } from '../../common/constants';
+import { CLIENT_AUTHENTICATION_HEADER } from '../../common/constants';
 
 export const uiamServiceMock = {
   create: (): jest.Mocked<UiamServicePublic> => ({
     getAuthenticationHeaders: jest.fn().mockImplementation((accessToken: string) => ({
       authorization: `Bearer ${accessToken}`,
-      [ES_CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret',
+      [CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret',
     })),
     getClientAuthentication: jest.fn(),
-    getEsClientAuthenticationHeader: jest.fn().mockReturnValue({
-      [ES_CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret',
+    getClientAuthenticationHeader: jest.fn().mockReturnValue({
+      [CLIENT_AUTHENTICATION_HEADER]: 'some-shared-secret',
     }),
     refreshSessionTokens: jest
       .fn()

@@ -6,6 +6,7 @@
  */
 
 import type { IClusterClient, KibanaRequest, Logger } from '@kbn/core/server';
+import { HTTPAuthorizationHeader, isUiamCredential } from '@kbn/core-security-server';
 import type {
   GrantAPIKeyResult,
   GrantUiamAPIKeyParams,
@@ -17,8 +18,6 @@ import type {
 import type { SecurityLicense } from '../../../../common';
 import { getDetailedErrorMessage } from '../../../errors';
 import type { UiamServicePublic } from '../../../uiam';
-import { isUiamCredential } from '../../../uiam';
-import { HTTPAuthorizationHeader } from '../../http_authentication';
 
 /**
  * Options required to construct a UiamAPIKeys instance.
@@ -166,7 +165,7 @@ export class UiamAPIKeys implements UiamAPIKeysType {
     return this.clusterClient.asScoped({
       headers: {
         authorization: authorization.toString(),
-        ...(isUiamCredential(authorization) ? this.uiam.getEsClientAuthenticationHeader() : {}),
+        ...(isUiamCredential(authorization) ? this.uiam.getClientAuthenticationHeader() : {}),
       },
     });
   }

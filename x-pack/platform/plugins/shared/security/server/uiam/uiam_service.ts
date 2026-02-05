@@ -10,13 +10,16 @@ import { readFileSync } from 'fs';
 import { Agent } from 'undici';
 
 import type { Logger } from '@kbn/core/server';
+import { HTTPAuthorizationHeader } from '@kbn/core-security-server';
 import type {
   ClientAuthentication,
   GrantUiamAPIKeyParams,
 } from '@kbn/security-plugin-types-server';
 
-import { HTTPAuthorizationHeader } from '..';
-import { ES_CLIENT_AUTHENTICATION_HEADER } from '../../common/constants';
+import {
+  CLIENT_AUTHENTICATION_HEADER,
+  SECONDARY_CLIENT_AUTHENTICATION_HEADER,
+} from '../../common/constants';
 import type { UiamConfigType } from '../config';
 import { getDetailedErrorMessage } from '../errors';
 
@@ -74,7 +77,14 @@ export interface UiamServicePublic {
    * Returns the Elasticsearch client authentication header (`x-client-authentication`) with the shared secret value.
    * This header is used to authenticate requests from Kibana to Elasticsearch when using UIAM credentials.
    */
-  getEsClientAuthenticationHeader(): Record<string, string>;
+  getClientAuthenticationHeader(): Record<string, string>;
+
+  /**
+   * Returns the Elasticsearch secondary client authentication header (`es-secondary-x-client-authentication`) with the
+   * shared secret value. This header is used to authenticate requests from Kibana to Elasticsearch when using UIAM
+   * credentials as secondary credentials.
+   */
+  getSecondaryClientAuthenticationHeader(): Record<string, string>;
 
   /**
    * Refreshes the UIAM user session and returns new access and refresh session tokens.
@@ -145,7 +155,7 @@ export class UiamService implements UiamServicePublic {
   getAuthenticationHeaders(accessToken: string): Record<string, string> {
     return {
       authorization: new HTTPAuthorizationHeader('Bearer', accessToken).toString(),
-      [ES_CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
+      [CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
     };
   }
 
@@ -157,10 +167,17 @@ export class UiamService implements UiamServicePublic {
   }
 
   /**
-   * See {@link UiamServicePublic.getEsClientAuthenticationHeader}.
+   * See {@link UiamServicePublic.getClientAuthenticationHeader}.
    */
-  getEsClientAuthenticationHeader(): Record<string, string> {
-    return { [ES_CLIENT_AUTHENTICATION_HEADER]: this.getClientAuthentication().value };
+  getClientAuthenticationHeader(): Record<string, string> {
+    return { [CLIENT_AUTHENTICATION_HEADER]: this.getClientAuthentication().value };
+  }
+
+  /**
+   * See {@link UiamServicePublic.getSecondaryClientAuthenticationHeader}.
+   */
+  getSecondaryClientAuthenticationHeader(): Record<string, string> {
+    return { [SECONDARY_CLIENT_AUTHENTICATION_HEADER]: this.getClientAuthentication().value };
   }
 
   /**
@@ -175,7 +192,7 @@ export class UiamService implements UiamServicePublic {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            [ES_CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
+            [CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
           },
           body: JSON.stringify({ refresh_token: refreshToken }),
           // @ts-expect-error Undici `fetch` supports `dispatcher` option, see https://github.com/nodejs/undici/pull/1411.
@@ -202,7 +219,7 @@ export class UiamService implements UiamServicePublic {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            [ES_CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
+            [CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
             Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ tokens: [accessToken, refreshToken] }),
@@ -250,7 +267,7 @@ export class UiamService implements UiamServicePublic {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            [ES_CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
+            [CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
             Authorization: authorization.toString(),
           },
           body: JSON.stringify(body),
@@ -280,7 +297,7 @@ export class UiamService implements UiamServicePublic {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            [ES_CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
+            [CLIENT_AUTHENTICATION_HEADER]: this.#config.sharedSecret,
             Authorization: `ApiKey ${apiKey}`,
           },
           // @ts-expect-error Undici `fetch` supports `dispatcher` option, see https://github.com/nodejs/undici/pull/1411.

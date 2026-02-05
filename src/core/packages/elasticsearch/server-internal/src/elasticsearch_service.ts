@@ -26,6 +26,7 @@ import type {
 } from '@kbn/core-elasticsearch-server';
 import { ClusterClient, AgentManager } from '@kbn/core-elasticsearch-client-server-internal';
 
+import type { InternalSecurityServiceStart } from '@kbn/core-security-server-internal';
 import { registerAnalyticsContextProvider } from './register_analytics_context_provider';
 import type { ElasticsearchConfigType } from './elasticsearch_config';
 import { ElasticsearchConfig } from './elasticsearch_config';
@@ -47,6 +48,10 @@ export interface SetupDeps {
   analytics: AnalyticsServiceSetup;
   http: InternalHttpServiceSetup;
   executionContext: InternalExecutionContextSetup;
+}
+
+export interface StartDeps {
+  security: InternalSecurityServiceStart;
 }
 
 /** @internal */
@@ -148,7 +153,7 @@ export class ElasticsearchService
     };
   }
 
-  public async start(): Promise<InternalElasticsearchServiceStart> {
+  public async start(deps: StartDeps): Promise<InternalElasticsearchServiceStart> {
     if (!this.client || !this.esNodesCompatibility$) {
       throw new Error('ElasticsearchService needs to be setup before calling start');
     }

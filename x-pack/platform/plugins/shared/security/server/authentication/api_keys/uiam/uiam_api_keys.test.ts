@@ -11,13 +11,13 @@ import {
   httpServerMock,
   loggingSystemMock,
 } from '@kbn/core/server/mocks';
+import { HTTPAuthorizationHeader } from '@kbn/core-security-server';
 import type { Logger } from '@kbn/logging';
 
 import { UiamAPIKeys } from './uiam_api_keys';
 import type { SecurityLicense } from '../../../../common';
 import { licenseMock } from '../../../../common/licensing/index.mock';
 import type { UiamServicePublic } from '../../../uiam';
-import { HTTPAuthorizationHeader } from '../../http_authentication';
 
 describe('UiamAPIKeys', () => {
   let uiamApiKeys: UiamAPIKeys;
@@ -42,7 +42,7 @@ describe('UiamAPIKeys', () => {
     mockUiam = {
       getAuthenticationHeaders: jest.fn(),
       getClientAuthentication: jest.fn(),
-      getEsClientAuthenticationHeader: jest.fn().mockReturnValue({
+      getClientAuthenticationHeader: jest.fn().mockReturnValue({
         'x-client-authentication': 'shared-secret',
       }),
       refreshSessionTokens: jest.fn(),
@@ -311,7 +311,7 @@ describe('UiamAPIKeys', () => {
           'x-client-authentication': 'shared-secret',
         },
       });
-      expect(mockUiam.getEsClientAuthenticationHeader).toHaveBeenCalled();
+      expect(mockUiam.getClientAuthenticationHeader).toHaveBeenCalled();
     });
 
     it('creates scoped client without UIAM headers when API key does not start with UIAM prefix', () => {
@@ -323,7 +323,7 @@ describe('UiamAPIKeys', () => {
           authorization: 'ApiKey regular_api_key_123',
         },
       });
-      expect(mockUiam.getEsClientAuthenticationHeader).not.toHaveBeenCalled();
+      expect(mockUiam.getClientAuthenticationHeader).not.toHaveBeenCalled();
     });
   });
 

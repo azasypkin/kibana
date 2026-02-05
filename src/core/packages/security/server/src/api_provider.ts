@@ -7,6 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+import type { CoreUiamService } from './uiam';
 import type { CoreAuditService } from './audit';
 import type { CoreAuthenticationService } from './authc';
 
@@ -19,6 +20,7 @@ import type { CoreAuthenticationService } from './authc';
 export interface CoreSecurityDelegateContract {
   authc: AuthenticationServiceContract;
   audit: AuditServiceContract;
+  uiam: UiamServiceContract | null;
 }
 
 /**
@@ -27,3 +29,4 @@ export interface CoreSecurityDelegateContract {
 export type AuthenticationServiceContract = CoreAuthenticationService;
 
 export type AuditServiceContract = CoreAuditService;
+export type UiamServiceContract = CoreUiamService;

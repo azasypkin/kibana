@@ -445,7 +445,7 @@ export class Server {
     const executionContextStart = this.executionContext.start();
     const docLinkStart = this.docLinks.start();
 
-    const elasticsearchStart = await this.elasticsearch.start();
+    const elasticsearchStart = await this.elasticsearch.start({ security: securityStart });
     this.uptimePerStep.elasticsearch = {
       waitTime: elasticsearchStart.metrics.elasticsearchWaitTime,
     };

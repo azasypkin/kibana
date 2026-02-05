@@ -38,5 +38,6 @@ export const getDefaultSecurityImplementation = (): CoreSecurityDelegateContract
         includeSavedObjectNames: false,
       },
     },
+    uiam: null,
   };
 };

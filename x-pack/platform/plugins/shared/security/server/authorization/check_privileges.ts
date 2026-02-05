@@ -9,6 +9,7 @@ import type { estypes } from '@elastic/elasticsearch';
 import { pick, transform, uniq } from 'lodash';
 
 import type { IClusterClient, KibanaRequest } from '@kbn/core/server';
+import { HTTPAuthorizationHeader, isUiamCredential } from '@kbn/core-security-server';
 import type {
   CheckPrivileges,
   CheckPrivilegesOptions,
@@ -24,9 +25,7 @@ import { GLOBAL_RESOURCE } from '@kbn/security-plugin-types-server';
 
 import { ResourceSerializer } from './resource_serializer';
 import { validateEsPrivilegeResponse } from './validate_es_response';
-import { HTTPAuthorizationHeader } from '..';
 import type { UiamServicePublic } from '../uiam';
-import { isUiamCredential } from '../uiam';
 
 interface CheckPrivilegesActions {
   login: string;
@@ -74,7 +73,7 @@ export function checkPrivilegesFactory(
 
     // For UIAM credentials, we need to add the UIAM authentication header to the scoped client.
     return clusterClient.asScoped({
-      headers: { ...request.headers, ...uiam.getEsClientAuthenticationHeader() },
+      headers: { ...request.headers, ...uiam.getClientAuthenticationHeader() },
     });
   }
 
