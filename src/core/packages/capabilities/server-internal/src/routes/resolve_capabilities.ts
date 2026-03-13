@@ -23,7 +23,8 @@ export function registerCapabilitiesRoutes(router: IRouter, resolver: Capabiliti
           reason: 'This route delegates authorization to the Capabilities Resolver',
         },
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason: 'This route can be accessed by both authenticated and unauthenticated users',
         },
       },

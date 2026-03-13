@@ -168,7 +168,8 @@ export function initRoutes(
           reason: `This route delegates authorization to Core's security service; there must be an authenticated user for this route to return information`,
         },
         authc: {
-          enabled: 'minimal',
+          enabled: true,
+          mode: 'minimal',
           reason: `This route is optimized for performant retrieval of the current user's information`,
         },
       },
@@ -477,7 +478,8 @@ export function initRoutes(
       },
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'UIAM test endpoints may use explicit API key credentials instead of session auth',
         },
@@ -510,7 +512,8 @@ export function initRoutes(
       },
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'UIAM test endpoints may use explicit API key credentials instead of session auth',
         },
@@ -552,7 +555,8 @@ export function initRoutes(
       },
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'UIAM test endpoints may use explicit API key credentials instead of session auth',
         },
@@ -616,7 +620,8 @@ export function initRoutes(
       },
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'UIAM test endpoints may use explicit API key credentials instead of session auth',
         },
@@ -675,7 +680,8 @@ export function initRoutes(
       },
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'UIAM test endpoints may use explicit API key credentials instead of session auth',
         },

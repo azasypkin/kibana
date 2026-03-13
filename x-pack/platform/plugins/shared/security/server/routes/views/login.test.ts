@@ -56,7 +56,7 @@ describe('Login view routes', () => {
 
       expect(routeConfig.security).toEqual(
         expect.objectContaining({
-          authc: { enabled: 'optional', reason: expect.any(String) },
+          authc: { enabled: true, mode: 'optional', reason: expect.any(String) },
           authz: { enabled: false, reason: expect.any(String) },
         })
       );

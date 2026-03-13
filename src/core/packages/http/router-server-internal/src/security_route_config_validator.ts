@@ -148,20 +148,32 @@ const authzSchema = schema.object({
   ),
 });
 
-const authcSchema = schema.object({
-  enabled: schema.oneOf([
-    schema.literal(true),
-    schema.literal('optional'),
-    schema.literal('minimal'),
-    schema.literal(false),
-  ]),
-  reason: schema.conditional(
-    schema.siblingRef('enabled'),
-    schema.literal(true),
-    schema.never(),
-    schema.string()
-  ),
-});
+const authcSchema = schema.object(
+  {
+    enabled: schema.boolean(),
+    mode: schema.maybe(schema.oneOf([schema.literal('optional'), schema.literal('minimal')])),
+    reason: schema.maybe(schema.string()),
+  },
+  {
+    validate: (value) => {
+      if (value.enabled === false && value.mode !== undefined) {
+        return 'mode cannot be set when authentication is disabled';
+      }
+      // reason is required when authentication is disabled
+      if (value.enabled === false && !value.reason) {
+        return '[reason]: expected value of type [string] but got [undefined]';
+      }
+      // reason is required when mode is set
+      if (value.mode !== undefined && !value.reason) {
+        return '[reason]: expected value of type [string] but got [undefined]';
+      }
+      // reason should not be present when authentication is simply enabled (no mode)
+      if (value.enabled === true && value.mode === undefined && value.reason !== undefined) {
+        return "[reason]: a]value wasn't expected to be present";
+      }
+    },
+  }
+);
 
 const routeSecuritySchema = schema.object({
   authz: authzSchema,
@@ -180,5 +192,8 @@ export const validRouteSecurity = (
     throw new Error('Cannot specify both security.authc and options.authRequired');
   }
 
-  return routeSecuritySchema.validate(routeSecurity);
+  // The schema validates that `enabled` is a boolean compatible with the discriminated
+  // union in RouteAuthc, but @kbn/config-schema widens `boolean` literals. Cast is safe
+  // because the schema's custom validate function enforces the union constraints.
+  return routeSecuritySchema.validate(routeSecurity) as RouteSecurity;
 };

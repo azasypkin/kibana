@@ -253,7 +253,8 @@ export interface AuthcEnabled {
  * is checked). Requires an explicit reason explaining why full authentication can be deferred to Elasticsearch.
  */
 export interface AuthcMinimal {
-  enabled: 'minimal';
+  enabled: true;
+  mode: 'minimal';
   reason: string;
 }
 
@@ -262,7 +263,8 @@ export interface AuthcMinimal {
  * authentication is optional.
  */
 export interface AuthcOptional {
-  enabled: 'optional';
+  enabled: true;
+  mode: 'optional';
   reason: string;
 }
 
@@ -278,8 +280,9 @@ export interface AuthcDisabled {
 }
 
 /**
- * Represents the authentication status for a route. It can either be enabled (`AuthcEnabled`), minimal (`AuthcMinimal`),
- * optional (`AuthcOptional`), or disabled (`AuthcDisabled`).
+ * Represents the authentication status for a route. It can either be enabled (`AuthcEnabled`),
+ * enabled with a minimal mode (`AuthcMinimal`), enabled with an optional mode (`AuthcOptional`),
+ * or disabled (`AuthcDisabled`).
  */
 export type RouteAuthc = AuthcEnabled | AuthcMinimal | AuthcOptional | AuthcDisabled;
 

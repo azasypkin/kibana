@@ -19,7 +19,8 @@ describe('RouteSecurity validation', () => {
           requiredPrivileges: ['read', { anyRequired: ['write', 'admin'] }],
         },
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason: 'some reason',
         },
       })
@@ -169,14 +170,15 @@ describe('RouteSecurity validation', () => {
         requiredPrivileges: ['read'],
       },
       authc: {
-        enabled: 'minimal',
+        enabled: true,
+        mode: 'minimal',
       },
     };
 
     expect(() =>
       validRouteSecurity(routeSecurity as DeepPartial<RouteSecurity>)
     ).toThrowErrorMatchingInlineSnapshot(
-      `"[authc.reason]: expected value of type [string] but got [undefined]"`
+      `"[authc]: [reason]: expected value of type [string] but got [undefined]"`
     );
   });
 
@@ -186,14 +188,15 @@ describe('RouteSecurity validation', () => {
         requiredPrivileges: ['read'],
       },
       authc: {
-        enabled: 'optional',
+        enabled: true,
+        mode: 'optional',
       },
     };
 
     expect(() =>
       validRouteSecurity(routeSecurity as DeepPartial<RouteSecurity>)
     ).toThrowErrorMatchingInlineSnapshot(
-      `"[authc.reason]: expected value of type [string] but got [undefined]"`
+      `"[authc]: [reason]: expected value of type [string] but got [undefined]"`
     );
   });
 
@@ -208,7 +211,7 @@ describe('RouteSecurity validation', () => {
     };
 
     expect(() => validRouteSecurity(routeSecurity)).toThrowErrorMatchingInlineSnapshot(
-      `"[authc.reason]: expected value of type [string] but got [undefined]"`
+      `"[authc]: [reason]: expected value of type [string] but got [undefined]"`
     );
   });
 
@@ -236,7 +239,8 @@ describe('RouteSecurity validation', () => {
           requiredPrivileges: ['read'],
         },
         authc: {
-          enabled: 'minimal',
+          enabled: true,
+          mode: 'minimal',
           reason: 'some reason',
         },
       })
@@ -250,7 +254,8 @@ describe('RouteSecurity validation', () => {
           requiredPrivileges: ['read'],
         },
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason: 'some reason',
         },
       })

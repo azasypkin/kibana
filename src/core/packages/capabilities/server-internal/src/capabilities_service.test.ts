@@ -58,7 +58,8 @@ describe('CapabilitiesService', () => {
               reason: expect.any(String),
             },
             authc: {
-              enabled: 'optional',
+              enabled: true,
+              mode: 'optional',
               reason: expect.any(String),
             },
           },

@@ -2139,7 +2139,7 @@ test('exposes authentication details of incoming request to a route handler', as
       path: '/foo',
       validate: false,
       security: {
-        authc: { enabled: 'optional', reason: 'test' },
+        authc: { enabled: true, mode: 'optional', reason: 'test' },
         authz: { enabled: false, reason: 'test' },
       },
     },
@@ -2181,7 +2181,7 @@ test('exposes authentication details of incoming request to a route handler', as
         tags: [],
         timeout: {},
         security: {
-          authc: { enabled: 'optional', reason: 'test' },
+          authc: { enabled: true, mode: 'optional', reason: 'test' },
           authz: { enabled: false, reason: 'test' },
         },
       },
@@ -2197,7 +2197,7 @@ test('properly treats minimal authentication as required', async () => {
       path: '/',
       validate: false,
       security: {
-        authc: { enabled: 'minimal', reason: 'test' },
+        authc: { enabled: true, mode: 'minimal', reason: 'test' },
         authz: { enabled: false, reason: 'test' },
       },
     },
@@ -2222,7 +2222,7 @@ test('properly treats minimal authentication as required', async () => {
         tags: [],
         timeout: {},
         security: {
-          authc: { enabled: 'minimal', reason: 'test' },
+          authc: { enabled: true, mode: 'minimal', reason: 'test' },
           authz: { enabled: false, reason: 'test' },
         },
       },

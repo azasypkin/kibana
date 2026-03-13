@@ -262,7 +262,7 @@ export const plugin: PluginInitializer<void, void, PluginSetupDependencies> = as
             }),
           },
           security: {
-            authc: { enabled: 'optional', reason: 'Mock IDP plugin for testing' },
+            authc: { enabled: true, mode: 'optional', reason: 'Mock IDP plugin for testing' },
             authz: { enabled: false, reason: 'Mock IDP plugin for testing' },
           },
         },
@@ -314,7 +314,8 @@ export const plugin: PluginInitializer<void, void, PluginSetupDependencies> = as
           },
           security: {
             authc: {
-              enabled: 'optional',
+              enabled: true,
+              mode: 'optional',
               reason: 'Mock IDP plugin for testing UIAM operations',
             },
             authz: { enabled: false, reason: 'Mock IDP plugin for testing' },
@@ -373,7 +374,8 @@ export const plugin: PluginInitializer<void, void, PluginSetupDependencies> = as
           },
           security: {
             authc: {
-              enabled: 'optional',
+              enabled: true,
+              mode: 'optional',
               reason: 'Mock IDP plugin for testing UIAM operations',
             },
             authz: { enabled: false, reason: 'Mock IDP plugin for testing' },

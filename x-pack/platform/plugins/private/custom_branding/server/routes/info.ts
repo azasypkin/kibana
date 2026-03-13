@@ -15,7 +15,8 @@ export const registerInfoRoute = (router: CustomBrandingRouter) => {
       path: '/api/custom_branding/info',
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'Custom branding info must be accessible on the login page before the user is authenticated',
         },

@@ -163,11 +163,9 @@ export abstract class BaseAuthenticationProvider<TState = unknown> {
     // For "minimal" authentication, we don't need to call the `_authenticate` endpoint and can just
     // return a static user proxy. The caveat here is that we don't validate credentials, but it
     // will be done by the Elasticsearch itself.
-    if (
-      session &&
-      session.username &&
-      request.route.options.security?.authc?.enabled === 'minimal'
-    ) {
+    const authc = request.route.options.security?.authc;
+
+    if (session && session.username && authc && 'mode' in authc && authc.mode === 'minimal') {
       this.logger.debug(`Performing "minimal" authentication for request ${request.url.pathname}.`);
       return this.getMinAuthenticationUserProxy(session);
     }

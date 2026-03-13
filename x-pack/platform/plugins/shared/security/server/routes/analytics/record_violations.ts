@@ -144,7 +144,8 @@ export function defineRecordViolations({ router, analyticsService }: RouteDefini
          * unauthenticated users.
          */
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'Browsers stop sending violation reports after receiving a 403, so authentication must be optional to avoid losing reports from unauthenticated users',
         },

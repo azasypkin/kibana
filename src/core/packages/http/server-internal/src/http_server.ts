@@ -946,7 +946,12 @@ export class HttpServer {
     const { tags, body = {}, timeout, deprecated } = route.options;
     const { accepts: allow, override, maxBytes, output, parse } = body;
 
-    const authRequired = this.getSecurity(route)?.authc?.enabled ?? route.options.authRequired;
+    const authc = this.getSecurity(route)?.authc;
+    const authRequired = authc
+      ? 'mode' in authc
+        ? authc.mode
+        : authc.enabled
+      : route.options.authRequired;
 
     const kibanaRouteOptions: KibanaRouteOptions = {
       xsrfRequired: route.options.xsrfRequired ?? !isSafeMethod(route.method),

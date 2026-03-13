@@ -17,7 +17,8 @@ export const registerInfoRoute = (router: BannersRouter, config: BannersConfigTy
       path: '/api/banners/info',
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'Banner info must be accessible on the login page before the user is authenticated',
         },

@@ -101,7 +101,8 @@ export function registerTelemetryConfigRoutes({
       path: FetchTelemetryConfigRoute,
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'Telemetry config must be accessible regardless of authentication state to determine opt-in status',
         },

@@ -52,7 +52,8 @@ export const registerBootstrapRoute = ({
       path: '/bootstrap-anonymous.js',
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'Anonymous bootstrap script must be loadable on pages like the login page where the user is not yet authenticated',
         },

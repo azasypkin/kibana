@@ -84,7 +84,8 @@ export const registerStatusRoute = ({
       path: '/api/status',
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason:
             'Status endpoint must be accessible by unauthenticated system users such as k8s readiness probes',
         },

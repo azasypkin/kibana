@@ -42,7 +42,8 @@ export function defineLoginRoutes({
       options: { excludeFromOAS: true, excludeFromRateLimiter: true },
       security: {
         authc: {
-          enabled: 'optional',
+          enabled: true,
+          mode: 'optional',
           reason: 'This route can be accessed by both authenticated and unauthenticated users.',
         },
         authz: {
