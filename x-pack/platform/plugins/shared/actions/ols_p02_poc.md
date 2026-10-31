@@ -161,10 +161,13 @@ Two choices in the rule paths need review:
 - **PS4:** excluding the `acl` extension always throws. Guardrail G2 needs a reviewed allowlist of system uses.
 - **PS8:** UIAM API keys and UIAM service accounts get general access only ([kibana#271760](https://github.com/elastic/kibana/issues/271760)).
 - **D2:** `acl` is a root field, so every read includes it. Its cost is part of the bench.
-- **CI:** `.buildkite/scout_ci_config.yml` disables `actions` and excludes the UI config. Enable them when the draft PR
-  wants CI runs. The `ols_poc` config set needs Apps DX review.
-- **FTR:** the 34 Actions and Alerting API FTR configs run with OLS disabled. 30 pass locally.
+- **CI:** the Scout suites with object-level security enabled (`ols_poc`) and disabled run in CI. The `ols_poc`
+  config set needs Apps DX review.
+- **FTR:** the existing Actions and Alerting suites show that nothing changes while the setting is off. The Scout
+  suites above cover the behavior with object-level security enabled. The 34 API FTR configs run with OLS disabled,
+  and 31 pass locally.
   `spaces_only/tests/alerting/group4` ("should list all registered rule types") fails the same way on the base
-  commit, and `spaces_only_legacy` does not load its tests. `spaces_only/tests/alerting/group3`, the email trimming
-  tests in `security_and_spaces/group2/tests/actions`, and the connectors and rules UI FTRs are still to confirm.
-  None of these suites run with OLS enabled yet.
+  commit. `security_and_spaces/group2/tests/actions` (no `emailMaximumBodyLength`, so its email trimming tests fail;
+  the parent `group2` config runs them and passes) and `spaces_only_legacy` (does not load its tests) are disabled
+  in CI. The connectors and rules UI FTR configs pass (13 and 48 tests). Running these existing suites with OLS
+  enabled is a follow-up.
